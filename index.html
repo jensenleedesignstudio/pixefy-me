@@ -1,0 +1,82 @@
+<!doctype html> 
+
+<html lang = "en">
+
+    <head>
+        <meta charset = "utf-8">
+        <title>pixefy me</title>
+    </head>
+
+    <body>
+        <h1>pixefy me</h1>
+        <canvas id = "drawing" width = "600" height = "350"
+            style = "border: 2px solid black;">
+        </canvas>
+
+        <button id = "clear" type = "button">clear</button>
+        <button id = "save-sketch" type = "button">save</button>
+        <button id = "generate" type = "button">generate</button>
+
+        <h2>pixel art preview</h2>
+        <img src = "pixel-cat.png" alt = "pixelated version of cat" width = "400">
+
+        <script> 
+            const canvas = document.getElementById("drawing");
+            const ctx = canvas.getContext("2d");
+
+            let drawing = false
+
+            canvas.addEventListener("pointerdown", function (event) {
+                drawing = true
+                canvas.setPointerCapture(event.pointerId);
+
+                const x = event.offsetX;
+                const y = event.offsetY;
+
+                ctx.strokeStyle = "orange";
+                ctx.lineWidth = 6;
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener("pointerup", function () {
+                drawing = false;
+            });
+
+            canvas.addEventListener("pointermove", function (event) { 
+                if (!drawing) return; 
+
+                ctx.lineTo(event.offsetX, event.offsetY);
+                ctx.stroke();
+            });
+            
+
+            const clearButton = document.getElementById("clear");
+
+            clearButton.addEventListener("click", function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            });
+
+            const saveButton = document.getElementById("save-sketch");
+
+            saveButton.addEventListener("click", function () {
+                const link = document.createElement("a");
+                link.href = canvas.toDataURL("image/png");
+                link.download = "sketch.png";
+                link.click();
+            });
+
+            const generateButton = document.getElementById("generate");
+
+            generateButton.addEventListener("click", function () {
+                canvas.toBlob(function (sketch) {
+                    console.log(sketch);
+                }, "image/png");
+            });
+
+        </script>
+
+    </body>
+
+</html>
