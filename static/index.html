@@ -18,7 +18,9 @@
         <button id = "generate" type = "button">generate</button>
 
         <h2>pixel art preview</h2>
-        <img src = "pixel-cat.png" alt = "pixelated version of cat" width = "400">
+        <img id = "preview" src = "pixel-cat.png" alt = "pixelated version of cat" width = "400">
+
+        <a id = "download-art" download = "pixel-art.png" hidden>download pixel art</a>
 
         <script> 
             const canvas = document.getElementById("drawing");
@@ -70,8 +72,35 @@
             const generateButton = document.getElementById("generate");
 
             generateButton.addEventListener("click", function () {
+                generateButton.disabled = true; 
+                generateButton.textContent = "generating...";
+
                 canvas.toBlob(function (sketch) {
-                    console.log(sketch);
+                    const form = new FormData();
+                    form.append("sketch", sketch, "sketch.png");
+
+                    fetch("/generate", { method: "POST", body: form })
+                        .then(response => { 
+                            if (!response.ok) {
+                                throw new Error(`generation failed (HTTP ${response.status}).`);
+                            }
+                            return response.blob();
+                        })
+                        .then(image => {
+                            const preview = document.getElementById("preview");
+                            preview.src = URL.createObjectURL(image);
+
+                            const downloadLink = document.getElementById("download-art");
+                            downloadLink.href = preview.src;
+                            downloadLink.hidden = false;
+                        })
+                        .catch(error => {
+                            alert(error.message);
+                        })
+                        .finally(() => {
+                            generateButton.disabled = false; 
+                            generateButton.textContent = "generate"; 
+                        });
                 }, "image/png");
             });
 
