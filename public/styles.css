@@ -1,18 +1,51 @@
 body {
+    max-width: 1112px;
+    margin: 0 auto;
+    padding: 32px 24px;
     background-color: #f5f3ec;
+    color: #22221e;
+    font-family: "Courier New", monospace;
+    line-height: 1.5;
+}
+
+h1 {
+    margin: 0 0 24px;
+    font-size: 36px;
+    line-height: 1.2;
+    letter-spacing: -1px;
 }
 
 .workspace {
     display: flex;
     gap: 24px;
     flex-wrap: wrap;
+    align-items: flex-start;
 }
 
 .drawing-panel,
 .preview-panel {
+    box-sizing: border-box;
+    max-width: 100%;
     background-color: #fffdf8;
     border: 1px solid #d8d5cc;
     padding: 20px;
+}
+
+.drawing-panel {
+    /* 600px canvas + 4px canvas border + 40px padding + 2px panel border. */
+    width: 646px;
+    overflow-x: auto;
+}
+
+.preview-panel {
+    width: 442px;
+}
+
+#drawing {
+    /* Keep the canvas at its HTML dimensions so mouse coordinates still match. */
+    display: block;
+    border: 2px solid #22221e;
+    background-color: #fff;
 }
 
 #preview {
@@ -29,22 +62,49 @@ body {
 .drawing-actions {
     display: flex;
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 16px;
+}
+
+.drawing-actions button {
+    border: 1px solid #b7b3a7;
+    padding: 10px 16px;
+    background-color: #f5f3ec;
+    color: #22221e;
+    font: inherit;
+    cursor: pointer;
+}
+
+.drawing-actions button:hover:not(:disabled) {
+    background-color: #e8e4d9;
+}
+
+.drawing-actions button:focus-visible,
+#download-art:focus-visible {
+    outline: 2px solid #22221e;
+    outline-offset: 3px;
+}
+
+#download-art {
+    color: #22221e;
+    text-underline-offset: 3px;
 }
 
 #generate {
     background-color: #22221e;
     color: #fffdf8;
     border: 1px solid #22221e;
-    padding: 8px 14px;
-    cursor: pointer;
+    margin-left: auto;
+    font-weight: bold;
+}
+
+#generate:hover:not(:disabled) {
+    background-color: #44443b;
 }
 
 #generate:disabled {
     opacity: 0.55;
     cursor: wait;
 }
-
 
 .workspace h2 {
     margin: 0 0 12px;
