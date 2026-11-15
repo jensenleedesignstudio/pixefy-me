@@ -1,0 +1,9 @@
+body {
+    background-color: #f5f3ec;
+}
+
+.workspace {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}

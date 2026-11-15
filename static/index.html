@@ -5,10 +5,16 @@
     <head>
         <meta charset = "utf-8">
         <title>pixefy me</title>
+
+        <link rel = "stylesheet" href = "styles.css">
     </head>
 
     <body>
         <h1>pixefy me</h1>
+
+        <main class = "workspace">
+            <section class  = "drawing-panel">
+
         <canvas id = "drawing" width = "600" height = "350"
             style = "border: 2px solid black;">
         </canvas>
@@ -17,10 +23,16 @@
         <button id = "save-sketch" type = "button">save</button>
         <button id = "generate" type = "button">generate</button>
 
+        </section>
+        <section class = "preview-panel">
+
         <h2>pixel art preview</h2>
         <img id = "preview" src = "pixel-cat.png" alt = "pixelated version of cat" width = "400">
 
         <a id = "download-art" download = "pixel-art.png" hidden>download pixel art</a>
+        
+        </section>
+        </main>
 
         <script> 
             const canvas = document.getElementById("drawing");
@@ -80,10 +92,12 @@
                     form.append("sketch", sketch, "sketch.png");
 
                     fetch("/generate", { method: "POST", body: form })
-                        .then(response => { 
+                        .then(async response => {
                             if (!response.ok) {
-                                throw new Error(`generation failed (HTTP ${response.status}).`);
+                                const message = await response.text();
+                                throw new Error(message);
                             }
+
                             return response.blob();
                         })
                         .then(image => {
