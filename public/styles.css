@@ -1,0 +1,22 @@
+body {
+    background-color: #f5f3ec;
+}
+
+.workspace {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.drawing-panel,
+.preview-panel {
+    background-color: #fffdf8;
+    border: 1px solid #d8d5cc;
+    padding: 20px;
+}
+
+.drawing-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}

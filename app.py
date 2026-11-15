@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from openai import OpenAI, RateLimitError
 from base64 import b64decode
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder = "public", static_url_path = "/static")
 
 load_dotenv()
 client = OpenAI()
