@@ -6,6 +6,7 @@ from base64 import b64decode
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from gradio_client import Client, handle_file
+import os
 
 app = Flask(__name__, static_folder = "public", static_url_path = "/static")
 
@@ -61,7 +62,10 @@ def generate_3d():
         image_path = Path(folder) / "pixel-art.png"
         image.save(image_path)
 
-        hf_client = Client("stabilityai/stable-fast-3d")
+        hf_client = Client(
+            "stabilityai/stable-fast-3d",
+            token=os.environ["HF_TOKEN"],
+        )
         uploaded_image = handle_file(str(image_path))
 
         preparation = hf_client.predict(
@@ -85,5 +89,24 @@ def generate_3d():
                 api_name="/run_button",
             )
 
-        return "Background ready for 3D generation."
+        _, model_result = hf_client.predict(
+            "Run",
+            uploaded_image,
+            0.85,
+            "None",
+            -1,
+            1024,
+            api_name="/run_button",
+        )
+
+        model_path = model_result["value"]
+        model_bytes = Path(model_path).read_bytes()
+
+        return send_file(
+            BytesIO(model_bytes),
+            mimetype="model/gltf-binary",
+            download_name="character.glb",
+        )
+
+    
 
