@@ -3,6 +3,9 @@ from io import BytesIO
 from dotenv import load_dotenv
 from openai import OpenAI, RateLimitError
 from base64 import b64decode
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from gradio_client import Client, handle_file
 
 app = Flask(__name__, static_folder = "public", static_url_path = "/static")
 
@@ -44,8 +47,43 @@ def generate():
     except RateLimitError:
         return "image generation is unavailable. check your API credits and limits.", 429
 
-
-
     image_bytes = b64decode(result.data[0].b64_json)
     return send_file(BytesIO(image_bytes), mimetype = "image/png")
+
+@app.route("/generate-3d", methods=["POST"])
+def generate_3d():
+    image = request.files.get("image")
+
+    if image is None:
+        return "No image received.", 400
+
+    with TemporaryDirectory() as folder:
+        image_path = Path(folder) / "pixel-art.png"
+        image.save(image_path)
+
+        hf_client = Client("stabilityai/stable-fast-3d")
+        uploaded_image = handle_file(str(image_path))
+
+        preparation = hf_client.predict(
+            uploaded_image,
+            api_name="/requires_bg_remove",
+        )
+
+        background_preview = preparation[0]
+
+        if isinstance(background_preview, dict):
+            background_preview = background_preview.get("value")
+
+        if not background_preview:
+            hf_client.predict(
+                "Remove Background",
+                uploaded_image,
+                0.85,
+                "None",
+                -1,
+                1024,
+                api_name="/run_button",
+            )
+
+        return "Background ready for 3D generation."
 

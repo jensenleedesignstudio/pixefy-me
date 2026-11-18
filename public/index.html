@@ -25,6 +25,7 @@
             <button id = "clear" type = "button">clear</button>
             <button id = "save-sketch" type = "button">save</button>
             <button id = "generate" type = "button">generate</button>
+            <button id = "generate-3d" type = "button" disabled>generate 3d</button>
         </div>
 
         </section>
@@ -39,8 +40,16 @@
         </main>
 
         <script> 
+            let generatedImage = null;
+
             const canvas = document.getElementById("drawing");
             const ctx = canvas.getContext("2d");
+
+            function getCanvasPoint(event) {
+                const x = event.offsetX * (canvas.width / canvas.clientWidth);
+                const y = event.offsetY * (canvas.height / canvas.clientHeight);
+                return { x, y };
+}
 
             let drawing = false
 
@@ -105,6 +114,8 @@
                             return response.blob();
                         })
                         .then(image => {
+                            generatedImage = image;
+                            generate3dButton.disabled = false;
                             const preview = document.getElementById("preview");
                             preview.src = URL.createObjectURL(image);
 
@@ -121,6 +132,32 @@
                         });
                 }, "image/png");
             });
+
+            const generate3dButton = document.getElementById("generate-3d");
+
+            generate3dButton.addEventListener("click", function () {
+                if (!generatedImage) return;
+
+                const form = new FormData();
+                form.append("image", generatedImage, "pixel-art.png");
+
+                fetch("/generate-3d", {
+                    method: "POST",
+                    body: form
+                })
+                    .then(async response => {
+                        const message = await response.text();
+
+                        if (!response.ok) {
+                            throw new Error(message);
+                        }
+
+                        console.log(message);
+                    })
+                    .catch(error => {
+                        alert(error.message);
+                    });
+                            });
 
         </script>
 
