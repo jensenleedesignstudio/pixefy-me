@@ -8,6 +8,10 @@
         <title>pixefy me</title>
 
         <link rel = "stylesheet" href = "styles.css">
+
+        <script type="module"
+            src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.4.0/model-viewer.min.js">
+        </script>
     </head>
 
     <body>
@@ -36,6 +40,15 @@
 
         <a id = "download-art" download = "pixel-art.png" hidden>download pixel art</a>
         
+        <h2>3d preview</h2>
+
+        <model-viewer
+            id = "model-preview"
+            src = "character.glb"
+            alt = "3d model of your character"
+            camera-controls>
+        </model-viewer>
+
         </section>
         </main>
 
@@ -153,12 +166,8 @@
                         return response.blob();
                     })
                     .then(model => {
-                        const link = document.createElement("a");
-                        link.href = URL.createObjectURL(model);
-                        link.download = "character.glb";
-                        link.click();
-
-                        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+                        const viewer = document.getElementById("model-preview");
+                        viewer.src = URL.createObjectURL(model);
                     })
                     .catch(error => {
                         alert(error.message);
