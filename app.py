@@ -22,6 +22,7 @@ def home ():
 @app.route("/generate", methods = ["POST"])
 def generate(): 
     sketch = request.files.get("sketch")
+    instructions = request.form.get("instructions", "").strip()
 
     if sketch is None: 
         return "no sketch received", 400
@@ -42,6 +43,7 @@ def generate():
                 "keep the limbs clearly separated and the silhouette easy to read. "
                 "use warm colours, simple materials, and soft lighting. "
                 "centre the character against a plain light background."
+                f"\nAdditional character instructions from the user: {instructions}"
             ),
             output_format = "png",
     )

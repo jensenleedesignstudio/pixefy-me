@@ -49,6 +49,13 @@
             <button id = "generate-3d" type = "button" disabled>generate 3d</button>
         </div>
 
+        <label for = "art-instructions">character instructions</label>
+        <textarea 
+            id = "art-instructions"
+            rows = "3"
+            placeholder = "make this penguin look a little kawaii..."
+        ></textarea>
+
         </section>
         <section class = "preview-panel">
 
@@ -156,6 +163,8 @@
                 canvas.toBlob(function (sketch) {
                     const form = new FormData();
                     form.append("sketch", sketch, "sketch.png");
+                    const instructions = document.getElementById("art-instructions").value;
+                    form.append("instructions", instructions);
 
                     fetch("/generate", { method: "POST", body: form })
                         .then(async response => {
