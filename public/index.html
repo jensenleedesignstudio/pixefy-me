@@ -115,8 +115,8 @@
                 type = "button" 
                 class = "panel-select" 
                 data-target = "art"
-                aria-hidden = "show art preview in main panel"
-                title = "show canvas"
+                aria-label = "show art preview in main panel"
+                title = "show art preview"
             >    
                 <span class = "material-symbols-outlined" aria-hidden = "true">
                     open_in_full
@@ -167,19 +167,112 @@
             let generatedImage = null;
 
             const panels = document.querySelectorAll(".workspace > section");
+            const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+            const panelAnimations = new Map();
+
+            function cancelPanelAnimations() {
+                panelAnimations.forEach(function (animation) {
+                    animation.cancel();
+                });
+                panelAnimations.clear();
+            }
 
             function setActivePanel(view) {
+                const selectedPanel = Array.from(panels).find(panel => panel.dataset.view === view);
+                if (!selectedPanel || selectedPanel.classList.contains("is-active")) return;
+
+                // First: capture visible positions, including any unfinished animation.
+                const first = Array.from(panels, panel => panel.getBoundingClientRect());
+                cancelPanelAnimations();
+
+                // Last: let the existing grid and contextual controls take their new layout.
                 panels.forEach(function (panel) {
                     const isSelected = panel.dataset.view === view;
                     panel.classList.toggle("is-active", isSelected);
                 });
+                updatePanelButtons();
+
+                if (reducedMotion.matches || !selectedPanel.animate) return;
+                const last = Array.from(panels, panel => panel.getBoundingClientRect());
+
+                panels.forEach(function (panel, index) {
+                    const before = first[index];
+                    const after = last[index];
+                    if (!before.width || !before.height || !after.width || !after.height) return;
+                    const x = before.left - after.left;
+                    const y = before.top - after.top;
+                    const scaleX = before.width / after.width;
+                    const scaleY = before.height / after.height;
+                    if (x === 0 && y === 0 && scaleX === 1 && scaleY === 1) return;
+
+                    // Invert, then Play: visually return to the old box and glide to the new one.
+                    const animation = panel.animate([
+                        { transform: `translate(${x}px, ${y}px) scale(${scaleX}, ${scaleY})` },
+                        { transform: "none" }
+                    ], {
+                        duration: 350,
+                        easing: "cubic-bezier(0.22, 1, 0.36, 1)"
+                    });
+                    panelAnimations.set(panel, animation);
+                    animation.onfinish = function () {
+                        // An older animation must never clean up a newer rapid-click animation.
+                        if (panelAnimations.get(panel) === animation) {
+                            panelAnimations.delete(panel);
+                        }
+                    };
+                });
             }
+
+            // A changed viewport or motion preference should immediately show the final layout.
+            window.addEventListener("resize", cancelPanelAnimations);
+            reducedMotion.addEventListener("change", function () {
+                if (reducedMotion.matches) cancelPanelAnimations();
+            });
 
             const panelButtons = document.querySelectorAll(".panel-select");
 
+            function updatePanelButtons() {
+                panels.forEach(function (panel) {
+                    const button = panel.querySelector(".panel-select");
+                    const name = panel.querySelector("h2").textContent;
+                    const isFullscreen = document.fullscreenElement === panel;
+                    const label = isFullscreen ? "exit fullscreen"
+                        : panel.classList.contains("is-active") ? `view ${name} fullscreen`
+                        : `show ${name} in main panel`;
+                    button.setAttribute("aria-label", label);
+                    button.title = label;
+                    button.querySelector(".material-symbols-outlined").textContent =
+                        isFullscreen ? "close_fullscreen" : "open_in_full";
+                });
+            }
+
+            document.addEventListener("fullscreenchange", function () {
+                cancelPanelAnimations();
+                updatePanelButtons();
+            });
+            updatePanelButtons();
+
             panelButtons.forEach(function (button) {
-                button.addEventListener("click", function () {
-                    setActivePanel(button.dataset.target);
+                button.addEventListener("click", async function () {
+                    const panel = button.closest("section");
+                    if (!panel.classList.contains("is-active")) {
+                        setActivePanel(button.dataset.target);
+                        return;
+                    }
+
+                    // Finish any panel swap before the browser takes over fullscreen.
+                    cancelPanelAnimations();
+                    try {
+                        if (document.fullscreenElement === panel) {
+                            await document.exitFullscreen();
+                        } else if (panel.requestFullscreen) {
+                            await panel.requestFullscreen();
+                        } else {
+                            alert("Fullscreen is not supported in this browser.");
+                        }
+                    } catch (error) {
+                        alert("Could not change fullscreen. Please try again.");
+                    }
                 });
             });
 
@@ -203,8 +296,15 @@
             });
 
             function getCanvasPoint(event) {
-                const x = event.offsetX * (canvas.width / canvas.clientWidth);
-                const y = event.offsetY * (canvas.height / canvas.clientHeight);
+                // Convert the visible content box (excluding its border) to canvas pixels.
+                // Its bounding box includes the panel's in-flight FLIP scale as well.
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = rect.width / canvas.offsetWidth;
+                const scaleY = rect.height / canvas.offsetHeight;
+                const x = ((event.clientX - rect.left) / scaleX - canvas.clientLeft)
+                    * canvas.width / canvas.clientWidth;
+                const y = ((event.clientY - rect.top) / scaleY - canvas.clientTop)
+                    * canvas.height / canvas.clientHeight;
                 return { x, y };
             }
 
