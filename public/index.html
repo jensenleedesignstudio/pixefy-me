@@ -26,7 +26,7 @@
         <input type = "color" id = "brush-color" value = "#000000">
         
         <label for = "brush-size">brush</label>
-        <input type = "range" id = "brush-size" min = "1" ma x= "40" value = "6">
+        <input type = "range" id = "brush-size" min = "1" max = "40" value = "6">
 
         <label for = "eraser">eraser</label>
         <input type = "checkbox" id = "eraser">
@@ -132,7 +132,11 @@
 
             const clearButton = document.getElementById("clear");
 
-            clearButton.addEventListener("click", function() {
+            clearButton.addEventListener("click", function () {
+                undoHistory.push(
+                    ctx.getImageData(0, 0, canvas.width, canvas.height)
+                );
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             });
 
@@ -200,6 +204,9 @@
             generate3dButton.addEventListener("click", function () {
                 if (!generatedImage) return;
 
+                generate3dButton.disabled = true;
+                generate3dButton.textContent = "generating 3d...";
+
                 const form = new FormData();
                 form.append("image", generatedImage, "pixel-art.png");
 
@@ -220,6 +227,10 @@
                     })
                     .catch(error => {
                         alert(error.message);
+                    })
+                    .finally(() => {
+                        generate3dButton.disabled = false;
+                        generate3dButton.textContent = "generate 3d";
                     });
                             });
 
