@@ -28,11 +28,21 @@
             data-view = "canvas"
         >
 
-        <h2>your canvas</h2>
+        <div class = "panel-header">
+            <h2>your canvas</h2>
 
-        <button type = "button" class = "panel-select" data-target = "canvas">
-            show canvas
-        </button>
+            <button 
+                type = "button" 
+                class = "panel-select" 
+                data-target = "canvas"
+                aria-label = "show canvas in main panel"
+                title = "show canvas"
+            >
+                <span class = "material-symbols-outlined" aria-hidden = "true">
+                    open_in_full
+                </span>
+            </button>
+        </div>
 
         <div class = "drawing-toolbar" role = "group" aria-label = "drawing tools">
             <div class = "tool-group" role = "group" aria-label = "brush settings">
@@ -98,11 +108,22 @@
             data-view = "art"
         >
 
+        <div class = "panel-header">
             <h2>art preview</h2>
 
-            <button type = "button" class = "panel-select" data-target = "art">
-                show art
+            <button 
+                type = "button" 
+                class = "panel-select" 
+                data-target = "art"
+                aria-hidden = "show art preview in main panel"
+                title = "show canvas"
+            >    
+                <span class = "material-symbols-outlined" aria-hidden = "true">
+                    open_in_full
+                </span>
             </button>
+
+        </div>
 
             <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
 
@@ -115,11 +136,22 @@
             data-view = "model"
         >
 
+        <div class = "panel-header">
             <h2>3d preview</h2>
 
-            <button type = "button" class = "panel-select" data-target = "model">
-                show model
+            <button 
+                type = "button" 
+                class = "panel-select" 
+                data-target = "model"
+                aria-label = "show 3d in main panel"
+                title = "show 3d"
+            >
+                <span class = "material-symbols-outlined" aria-hidden = "true">
+                    open_in_full
+                </span>
             </button>
+
+        </div>
 
             <model-viewer
                 id = "model-preview"

@@ -34,7 +34,7 @@ def generate():
 
             prompt=(
                 "use this sketch as the reference for one charming cartoon character. "
-                "preserve its distinctive features, colours, expression, and accessories. "
+                "preserve its distinctive features, colours, expression, shape, and accessories. "
                 "render the character as a detailed, softly shaded 3d figurine, "
                 "viewed from a three-quarter angle so its front and side are visible. "
                 "give the head, body, and limbs clear volume and believable thickness. "
@@ -42,7 +42,8 @@ def generate():
                 "show the entire character, including its feet, ears, and tail. "
                 "keep the limbs clearly separated and the silhouette easy to read. "
                 "use warm colours, simple materials, and soft lighting. "
-                "centre the character against a plain light background."
+                "centre the character against a plain light background. use the following instructions"
+                "lightly trying to retain the original sketch as much as possible"
                 f"\nAdditional character instructions from the user: {instructions}"
             ),
             output_format = "png",
