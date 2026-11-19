@@ -28,6 +28,9 @@
         <label for = "brush-size">brush</label>
         <input type = "range" id = "brush-size" min = "1" ma x= "40" value = "6">
 
+        <label for = "eraser">eraser</label>
+        <input type = "checkbox" id = "eraser">
+
 
         <canvas id = "drawing" width = "600" height = "350">
         </canvas>
@@ -66,6 +69,7 @@
             const ctx = canvas.getContext("2d");
             const colorPicker = document.getElementById("brush-color");
             const sizePicker = document.getElementById("brush-size");
+            const eraserToggle = document.getElementById("eraser");
 
             function getCanvasPoint(event) {
                 const x = event.offsetX * (canvas.width / canvas.clientWidth);
@@ -84,6 +88,9 @@
 
                 ctx.strokeStyle = colorPicker.value;
                 ctx.lineWidth = Number(sizePicker.value);
+                ctx.globalCompositeOperation = eraserToggle.checked
+                    ? "destination-out"
+                    : "source-over";
 
                 ctx.beginPath();
                 ctx.moveTo(x, y);
