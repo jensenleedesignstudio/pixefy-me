@@ -21,36 +21,41 @@
         <h1>pixefy me</h1>
 
         <main class = "workspace">
-            <section class  = "drawing-panel">
+        
+        <section 
+            id = "canvas-panel"
+            class = "drawing-panel is-active"
+            data-view = "canvas"
+        >
 
         <h2>your canvas</h2>
 
-        <div class = "drawing-toolbar" role = "group" aria-label = "Drawing tools">
-            <div class = "tool-group" role = "group" aria-label = "Brush settings">
+        <div class = "drawing-toolbar" role = "group" aria-label = "drawing tools">
+            <div class = "tool-group" role = "group" aria-label = "brush settings">
                 <div class = "color-control">
                     <label for = "brush-color">colour</label>
-                    <input type = "color" id = "brush-color" value = "#000000" title = "Brush colour">
+                    <input type = "color" id = "brush-color" value = "#000000" title = "brush colour">
                 </div>
                 <div class = "size-control">
                     <label for = "brush-size">brush</label>
                     <input type = "range" id = "brush-size" min = "1" max = "40" value = "6">
                     <output id = "brush-size-value" for = "brush-size">6</output>
                 </div>
-                <button class = "icon-button" id = "eraser" type = "button" aria-label = "Eraser" title = "Eraser" aria-pressed = "false">
+                <button class = "icon-button" id = "eraser" type = "button" aria-label = "eraser" title = "eraser" aria-pressed = "false">
                     <span class = "material-symbols-outlined" aria-hidden = "true">ink_eraser</span>
                 </button>
             </div>
-            <div class = "tool-group" role = "group" aria-label = "Canvas actions">
-                <button class = "icon-button" id = "undo" type = "button" aria-label = "Undo" title = "Undo">
+            <div class = "tool-group" role = "group" aria-label = "canvas actions">
+                <button class = "icon-button" id = "undo" type = "button" aria-label = "undo" title = "undo">
                     <span class = "material-symbols-outlined" aria-hidden = "true">undo</span>
                 </button>
-                <button class = "icon-button" id = "clear" type = "button" aria-label = "Clear canvas" title = "Clear canvas">
+                <button class = "icon-button" id = "clear" type = "button" aria-label = "clear canvas" title = "clear canvas">
                     <span class = "material-symbols-outlined" aria-hidden = "true">delete</span>
                 </button>
-                <button class = "icon-button" id = "upload-button" type = "button" aria-label = "Upload image" title = "Upload image">
+                <button class = "icon-button" id = "upload-button" type = "button" aria-label = "upload image" title = "upload image">
                     <span class = "material-symbols-outlined" aria-hidden = "true">upload</span>
                 </button>
-                <button class = "icon-button" id = "save-sketch" type = "button" aria-label = "Save sketch" title = "Save sketch">
+                <button class = "icon-button" id = "save-sketch" type = "button" aria-label = "save sketch" title = "save sketch">
                     <span class = "material-symbols-outlined" aria-hidden = "true">download</span>
                 </button>
             </div>
@@ -83,21 +88,32 @@
         ></textarea>
 
         </section>
-        <section class = "preview-panel">
+        <section 
+            id = "art-panel"
+            class = "preview-panel"
+            data-view = "art"
+        >
 
-        <h2>art preview</h2>
-        <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
+            <h2>art preview</h2>
+            <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
 
-        <a id = "download-art" download = "pixel-art.png" hidden>download art</a>
-        
-        <h2>3d preview</h2>
+            <a id = "download-art" download = "pixel-art.png" hidden>download art</a>
+        </section>
 
-        <model-viewer
-            id = "model-preview"
-            src = "kawaiipenguin.glb"
-            alt = "3d model of your character"
-            camera-controls>
-        </model-viewer>
+        <section
+            id = "model-panel"
+            class = "preview-panel"
+            data-view = "model"
+        >
+
+            <h2>3d preview</h2>
+
+            <model-viewer
+                id = "model-preview"
+                src = "kawaiipenguin.glb"
+                alt = "3d model of your character"
+                camera-controls>
+            </model-viewer>
 
         </section>
         </main>
