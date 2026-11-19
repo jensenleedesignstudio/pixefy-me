@@ -31,7 +31,7 @@
         <label for = "eraser">eraser</label>
         <input type = "checkbox" id = "eraser">
 
-        <label for = "photo-upload">upload</label>
+        <button id = "upload-button" type = "button">upload</button>
         <input 
             type = "file"
             id = "photo-upload"
@@ -76,16 +76,21 @@
             const colorPicker = document.getElementById("brush-color");
             const sizePicker = document.getElementById("brush-size");
             const eraserToggle = document.getElementById("eraser");
+            const uploadButton = document.getElementById("upload-button");
+            const photoUpload = document.getElementById("photo-upload");
+            const undoHistory = [];
 
             function getCanvasPoint(event) {
                 const x = event.offsetX * (canvas.width / canvas.clientWidth);
                 const y = event.offsetY * (canvas.height / canvas.clientHeight);
                 return { x, y };
-}
+            }
+
+            uploadButton.addEventListener("click", function () {
+                photoUpload.click();
+            });
 
             let drawing = false
-
-            const undoHistory = [];
 
             canvas.addEventListener("pointerdown", function (event) {
 
