@@ -8,6 +8,9 @@
         <title>pixefy me</title>
 
         <link rel = "stylesheet" href = "styles.css">
+        <link rel = "stylesheet"
+            href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block"
+        >
 
         <script type="module"
             src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.4.0/model-viewer.min.js">
@@ -22,17 +25,37 @@
 
         <h2>your canvas</h2>
 
-        <label for = "brush-color">colour</label>
-        <input type = "color" id = "brush-color" value = "#000000">
-        
-        <label for = "brush-size">brush</label>
-        <input type = "range" id = "brush-size" min = "1" max = "40" value = "6">
-
-        <label for = "eraser">eraser</label>
-        <input type = "checkbox" id = "eraser">
-
-        <button id = "upload-button" type = "button">upload</button>
-        <input 
+        <div class = "drawing-toolbar" role = "group" aria-label = "Drawing tools">
+            <div class = "tool-group" role = "group" aria-label = "Brush settings">
+                <div class = "color-control">
+                    <label for = "brush-color">colour</label>
+                    <input type = "color" id = "brush-color" value = "#000000" title = "Brush colour">
+                </div>
+                <div class = "size-control">
+                    <label for = "brush-size">brush</label>
+                    <input type = "range" id = "brush-size" min = "1" max = "40" value = "6">
+                    <output id = "brush-size-value" for = "brush-size">6</output>
+                </div>
+                <button class = "icon-button" id = "eraser" type = "button" aria-label = "Eraser" title = "Eraser" aria-pressed = "false">
+                    <span class = "material-symbols-outlined" aria-hidden = "true">ink_eraser</span>
+                </button>
+            </div>
+            <div class = "tool-group" role = "group" aria-label = "Canvas actions">
+                <button class = "icon-button" id = "undo" type = "button" aria-label = "Undo" title = "Undo">
+                    <span class = "material-symbols-outlined" aria-hidden = "true">undo</span>
+                </button>
+                <button class = "icon-button" id = "clear" type = "button" aria-label = "Clear canvas" title = "Clear canvas">
+                    <span class = "material-symbols-outlined" aria-hidden = "true">delete</span>
+                </button>
+                <button class = "icon-button" id = "upload-button" type = "button" aria-label = "Upload image" title = "Upload image">
+                    <span class = "material-symbols-outlined" aria-hidden = "true">upload</span>
+                </button>
+                <button class = "icon-button" id = "save-sketch" type = "button" aria-label = "Save sketch" title = "Save sketch">
+                    <span class = "material-symbols-outlined" aria-hidden = "true">download</span>
+                </button>
+            </div>
+        </div>
+        <input
             type = "file"
             id = "photo-upload"
             accept = "image/png,image/jpeg,image/webp"
@@ -41,12 +64,15 @@
         <canvas id = "drawing" width = "600" height = "350">
         </canvas>
 
-        <div class = "drawing-actions">
-            <button id = "clear" type = "button">clear</button>
-            <button id = "undo" type = "button">undo</button>
-            <button id = "save-sketch" type = "button">save</button>
-            <button id = "generate" type = "button">generate</button>
-            <button id = "generate-3d" type = "button" disabled>generate 3d</button>
+        <div class = "drawing-actions" role = "group" aria-label = "Generation actions">
+            <button id = "generate" type = "button">
+                <span class = "material-symbols-outlined" aria-hidden = "true">image</span>
+                <span class = "button-label">Generate art</span>
+            </button>
+            <button id = "generate-3d" type = "button" disabled>
+                <span class = "material-symbols-outlined" aria-hidden = "true">view_in_ar</span>
+                <span class = "button-label">Generate 3D</span>
+            </button>
         </div>
 
         <label for = "art-instructions">character instructions</label>
@@ -83,10 +109,20 @@
             const ctx = canvas.getContext("2d");
             const colorPicker = document.getElementById("brush-color");
             const sizePicker = document.getElementById("brush-size");
+            const sizeValue = document.getElementById("brush-size-value");
             const eraserToggle = document.getElementById("eraser");
             const uploadButton = document.getElementById("upload-button");
             const photoUpload = document.getElementById("photo-upload");
             const undoHistory = [];
+
+            sizePicker.addEventListener("input", function () {
+                sizeValue.value = sizePicker.value;
+            });
+
+            eraserToggle.addEventListener("click", function () {
+                const isPressed = eraserToggle.getAttribute("aria-pressed") === "true";
+                eraserToggle.setAttribute("aria-pressed", String(!isPressed));
+            });
 
             function getCanvasPoint(event) {
                 const x = event.offsetX * (canvas.width / canvas.clientWidth);
@@ -110,7 +146,7 @@
 
                 ctx.strokeStyle = colorPicker.value;
                 ctx.lineWidth = Number(sizePicker.value);
-                ctx.globalCompositeOperation = eraserToggle.checked
+                ctx.globalCompositeOperation = eraserToggle.getAttribute("aria-pressed") === "true"
                     ? "destination-out"
                     : "source-over";
 
@@ -159,10 +195,12 @@
             });
 
             const generateButton = document.getElementById("generate");
+            const generateLabel = generateButton.querySelector(".button-label");
 
             generateButton.addEventListener("click", function () {
                 generateButton.disabled = true; 
-                generateButton.textContent = "generating...";
+                generateLabel.textContent = "Generating...";
+                generateButton.setAttribute("aria-busy", "true");
 
                 canvas.toBlob(function (sketch) {
                     const form = new FormData();
@@ -194,18 +232,21 @@
                         })
                         .finally(() => {
                             generateButton.disabled = false; 
-                            generateButton.textContent = "generate"; 
+                            generateLabel.textContent = "Generate art";
+                            generateButton.removeAttribute("aria-busy");
                         });
                 }, "image/png");
             });
 
             const generate3dButton = document.getElementById("generate-3d");
+            const generate3dLabel = generate3dButton.querySelector(".button-label");
 
             generate3dButton.addEventListener("click", function () {
                 if (!generatedImage) return;
 
                 generate3dButton.disabled = true;
-                generate3dButton.textContent = "generating 3d...";
+                generate3dLabel.textContent = "Generating 3D...";
+                generate3dButton.setAttribute("aria-busy", "true");
 
                 const form = new FormData();
                 form.append("image", generatedImage, "pixel-art.png");
@@ -230,7 +271,8 @@
                     })
                     .finally(() => {
                         generate3dButton.disabled = false;
-                        generate3dButton.textContent = "generate 3d";
+                        generate3dLabel.textContent = "Generate 3D";
+                        generate3dButton.removeAttribute("aria-busy");
                     });
                             });
 
