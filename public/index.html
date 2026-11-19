@@ -22,8 +22,12 @@
 
         <h2>your canvas</h2>
 
-        <label for = "brush-color">dolour</label>
-        <input type = "color" id = "brush-color" value = "#ffa500">
+        <label for = "brush-color">colour</label>
+        <input type = "color" id = "brush-color" value = "#000000">
+        
+        <label for = "brush-size">brush</label>
+        <input type = "range" id = "brush-size" min = "1" ma x= "40" value = "6">
+
 
         <canvas id = "drawing" width = "600" height = "350">
         </canvas>
@@ -61,6 +65,7 @@
             const canvas = document.getElementById("drawing");
             const ctx = canvas.getContext("2d");
             const colorPicker = document.getElementById("brush-color");
+            const sizePicker = document.getElementById("brush-size");
 
             function getCanvasPoint(event) {
                 const x = event.offsetX * (canvas.width / canvas.clientWidth);
@@ -78,7 +83,7 @@
                 const y = event.offsetY;
 
                 ctx.strokeStyle = colorPicker.value;
-                ctx.lineWidth = 6;
+                ctx.lineWidth = Number(sizePicker.value);
 
                 ctx.beginPath();
                 ctx.moveTo(x, y);
