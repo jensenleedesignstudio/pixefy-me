@@ -37,6 +37,7 @@
 
         <div class = "drawing-actions">
             <button id = "clear" type = "button">clear</button>
+            <button id = "undo" type = "button">undo</button>
             <button id = "save-sketch" type = "button">save</button>
             <button id = "generate" type = "button">generate</button>
             <button id = "generate-3d" type = "button" disabled>generate 3d</button>
@@ -79,7 +80,14 @@
 
             let drawing = false
 
+            const undoHistory = [];
+
             canvas.addEventListener("pointerdown", function (event) {
+
+                undoHistory.push(
+                    ctx.getImageData(0, 0, canvas.width, canvas.height)
+                );
+
                 drawing = true
                 canvas.setPointerCapture(event.pointerId);
 
@@ -112,6 +120,15 @@
 
             clearButton.addEventListener("click", function() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+            });
+
+            const undoButton = document.getElementById("undo");
+
+            undoButton.addEventListener("click", function () {
+                if (undoHistory.length === 0) return;
+
+                const previousDrawing = undoHistory.pop();
+                ctx.putImageData(previousDrawing, 0, 0);
             });
 
             const saveButton = document.getElementById("save-sketch");
