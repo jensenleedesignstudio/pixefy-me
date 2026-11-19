@@ -35,7 +35,8 @@
         <input 
             type = "file"
             id = "photo-upload"
-            accept = "image/png,image/jpeg,image/webp">
+            accept = "image/png,image/jpeg,image/webp"
+            hidden>
 
         <canvas id = "drawing" width = "600" height = "350">
         </canvas>
@@ -85,10 +86,6 @@
                 const y = event.offsetY * (canvas.height / canvas.clientHeight);
                 return { x, y };
             }
-
-            uploadButton.addEventListener("click", function () {
-                photoUpload.click();
-            });
 
             let drawing = false
 
@@ -217,6 +214,43 @@
                     });
                             });
 
+                    uploadButton.addEventListener("click", function () {
+                photoUpload.click();
+            });
+
+            photoUpload.addEventListener("change", async function () {
+                const file = photoUpload.files[0];
+                if (!file) return;
+
+                try {
+                    const photo = await createImageBitmap(file);
+
+                    undoHistory.push(
+                        ctx.getImageData(0, 0, canvas.width, canvas.height)
+                    );
+
+                    const scale = Math.min(
+                        canvas.width / photo.width,
+                        canvas.height / photo.height
+                    );
+
+                    const width = photo.width * scale;
+                    const height = photo.height * scale;
+                    const x = (canvas.width - width) / 2;
+                    const y = (canvas.height - height) / 2;
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.globalCompositeOperation = "source-over";
+                    ctx.drawImage(photo, x, y, width, height);
+
+                    photo.close();
+                } catch (error) {
+                    alert("Could not open this image. Try a PNG or JPEG.");
+                }
+
+                photoUpload.value = "";
+            });
+        
         </script>
 
     </body>
