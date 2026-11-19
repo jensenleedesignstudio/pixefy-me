@@ -31,16 +31,17 @@ def generate():
             model = "gpt-image-2.6-sunburst",
             image = ("sketch.png", sketch.read(), "image/png"),
 
-            prompt = (""
-            "use the uploaded sketch as the blueprint for a finished retro pixelated art scene. "
-            "tnterpret what the artist is drawing from the shapes, lines, and visual clues. "
-            "preserve the number and placement of the main subjects, their poses and silhouettes, "
-            "and distinctive details like expressions, accessories, or handwritten text. "
-            "complete unfinished outlines and fill in missing parts in ways that fit the sketch. "
-            "if a detail is ambiguous, choose the simplest interpretation that fits the visible lines. "
-            "add colour, simple shading, and pixel details that make each subject easy to recognize. "
-            "create a background that fits the scene and keeps the main subjects easy to see. "
-            "use crisp square pixels, a limited colour palette, and clean outlines throughout."
+            prompt=(
+                "use this sketch as the reference for one charming cartoon character. "
+                "preserve its distinctive features, colours, expression, and accessories. "
+                "render the character as a detailed, softly shaded 3d figurine, "
+                "viewed from a three-quarter angle so its front and side are visible. "
+                "give the head, body, and limbs clear volume and believable thickness. "
+                "complete missing parts in ways that fit the character's design. "
+                "show the entire character, including its feet, ears, and tail. "
+                "keep the limbs clearly separated and the silhouette easy to read. "
+                "use warm colours, simple materials, and soft lighting. "
+                "centre the character against a plain light background."
             ),
             output_format = "png",
     )
