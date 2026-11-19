@@ -22,6 +22,9 @@
 
         <h2>your canvas</h2>
 
+        <label for = "brush-color">dolour</label>
+        <input type = "color" id = "brush-color" value = "#ffa500">
+
         <canvas id = "drawing" width = "600" height = "350">
         </canvas>
 
@@ -36,7 +39,7 @@
         <section class = "preview-panel">
 
         <h2>art preview</h2>
-        <img id = "preview" src = "kawaiipenguin.png" alt = "kawaiipenguin!" width = "400">
+        <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
 
         <a id = "download-art" download = "pixel-art.png" hidden>download art</a>
         
@@ -44,7 +47,7 @@
 
         <model-viewer
             id = "model-preview"
-            src = "character.glb"
+            src = "kawaiipenguin.glb"
             alt = "3d model of your character"
             camera-controls>
         </model-viewer>
@@ -57,6 +60,7 @@
 
             const canvas = document.getElementById("drawing");
             const ctx = canvas.getContext("2d");
+            const colorPicker = document.getElementById("brush-color");
 
             function getCanvasPoint(event) {
                 const x = event.offsetX * (canvas.width / canvas.clientWidth);
@@ -73,7 +77,7 @@
                 const x = event.offsetX;
                 const y = event.offsetY;
 
-                ctx.strokeStyle = "orange";
+                ctx.strokeStyle = colorPicker.value;
                 ctx.lineWidth = 6;
 
                 ctx.beginPath();
