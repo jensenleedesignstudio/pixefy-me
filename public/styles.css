@@ -254,3 +254,24 @@ label[for="art-instructions"] {
         grid-row: auto;
     }
 }
+
+#drawing {
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.drawing-panel:not(.is-active) #drawing {
+    pointer-events: none;
+}
+
+.drawing-panel:not(.is-active) .drawing-toolbar,
+.drawing-panel:not(.is-active) .drawing-actions,
+.drawing-panel:not(.is-active) label[for="art-instructions"],
+.drawing-panel:not(.is-active) #art-instructions {
+    display: none;
+}
+
+.preview-panel.is-active #preview {
+    width: 100%;
+}

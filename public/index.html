@@ -30,6 +30,10 @@
 
         <h2>your canvas</h2>
 
+        <button type = "button" class = "panel-select" data-target = "canvas">
+            show canvas
+        </button>
+
         <div class = "drawing-toolbar" role = "group" aria-label = "drawing tools">
             <div class = "tool-group" role = "group" aria-label = "brush settings">
                 <div class = "color-control">
@@ -95,6 +99,11 @@
         >
 
             <h2>art preview</h2>
+
+            <button type = "button" class = "panel-select" data-target = "art">
+                show art
+            </button>
+
             <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
 
             <a id = "download-art" download = "pixel-art.png" hidden>download art</a>
@@ -108,6 +117,10 @@
 
             <h2>3d preview</h2>
 
+            <button type = "button" class = "panel-select" data-target = "model">
+                show model
+            </button>
+
             <model-viewer
                 id = "model-preview"
                 src = "kawaiipenguin.glb"
@@ -120,6 +133,23 @@
 
         <script> 
             let generatedImage = null;
+
+            const panels = document.querySelectorAll(".workspace > section");
+
+            function setActivePanel(view) {
+                panels.forEach(function (panel) {
+                    const isSelected = panel.dataset.view === view;
+                    panel.classList.toggle("is-active", isSelected);
+                });
+            }
+
+            const panelButtons = document.querySelectorAll(".panel-select");
+
+            panelButtons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    setActivePanel(button.dataset.target);
+                });
+            });
 
             const canvas = document.getElementById("drawing");
             const ctx = canvas.getContext("2d");
@@ -157,8 +187,7 @@
                 drawing = true
                 canvas.setPointerCapture(event.pointerId);
 
-                const x = event.offsetX;
-                const y = event.offsetY;
+                const { x, y } = getCanvasPoint(event);
 
                 ctx.strokeStyle = colorPicker.value;
                 ctx.lineWidth = Number(sizePicker.value);
@@ -177,7 +206,8 @@
             canvas.addEventListener("pointermove", function (event) { 
                 if (!drawing) return; 
 
-                ctx.lineTo(event.offsetX, event.offsetY);
+                const { x, y } = getCanvasPoint(event);
+                ctx.lineTo(x, y);
                 ctx.stroke();
             });
             
