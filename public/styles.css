@@ -1,7 +1,7 @@
 body {
-    max-width: 1112px;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 32px 24px;
+    padding: 24px;
     background-color: #f5f3ec;
     color: #22221e;
     font-family: "Courier New", monospace;
@@ -34,8 +34,8 @@ h1 {
 }
 
 .drawing-panel {
-    /* 600px canvas + 4px canvas border + 40px padding + 2px panel border. */
-    width: 646px;
+    container-type: inline-size;
+    container-name: drawing-panel;
     overflow-x: auto;
 }
 
@@ -44,7 +44,7 @@ h1 {
 }
 
 #drawing {
-    /* Keep the canvas at its HTML dimensions so mouse coordinates still match. */
+    /* CSS scales the display; the drawing buffer stays at its HTML dimensions. */
     display: block;
     border: 2px solid #22221e;
     background-color: #fff;
@@ -199,12 +199,52 @@ h1 {
     height: 400px;
 }
 
+/* Keep the editor inside the card that FLIP and fullscreen move. */
+.canvas-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-areas:
+        "canvas instructions"
+        "actions instructions";
+    column-gap: 16px;
+}
+
+.canvas-layout > #drawing {
+    grid-area: canvas;
+    align-self: start;
+    min-width: 0;
+}
+
+.canvas-layout > .drawing-actions {
+    grid-area: actions;
+}
+
+.instruction-column {
+    grid-area: instructions;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
 label[for="art-instructions"] {
     display: block;
-    margin-top: 20px;
+}
+
+/* Respond to the card's available width, including in fullscreen. */
+@container drawing-panel (max-width: 700px) {
+    .canvas-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "canvas" "actions" "instructions";
+    }
+
+    .instruction-column {
+        margin-top: 20px;
+    }
 }
 
 #art-instructions {
+    flex: 1;
+    min-height: 140px;
     width: 100%;
     box-sizing: border-box;
     margin-top: 8px;
@@ -268,14 +308,18 @@ label[for="art-instructions"] {
     box-sizing: border-box;
 }
 
+.drawing-panel:not(.is-active) .canvas-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "canvas";
+}
+
 .drawing-panel:not(.is-active) #drawing {
     pointer-events: none;
 }
 
 .drawing-panel:not(.is-active) .drawing-toolbar,
 .drawing-panel:not(.is-active) .drawing-actions,
-.drawing-panel:not(.is-active) label[for="art-instructions"],
-.drawing-panel:not(.is-active) #art-instructions {
+.drawing-panel:not(.is-active) .instruction-column {
     display: none;
 }
 

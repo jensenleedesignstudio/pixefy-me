@@ -80,26 +80,30 @@
             accept = "image/png,image/jpeg,image/webp"
             hidden>
 
-        <canvas id = "drawing" width = "600" height = "350">
-        </canvas>
+        <div class = "canvas-layout">
+            <canvas id = "drawing" width = "600" height = "350">
+            </canvas>
 
-        <div class = "drawing-actions" role = "group" aria-label = "Generation actions">
-            <button id = "generate" type = "button">
-                <span class = "material-symbols-outlined" aria-hidden = "true">image</span>
-                <span class = "button-label">Generate art</span>
-            </button>
-            <button id = "generate-3d" type = "button" disabled>
-                <span class = "material-symbols-outlined" aria-hidden = "true">view_in_ar</span>
-                <span class = "button-label">Generate 3D</span>
-            </button>
+            <div class = "drawing-actions" role = "group" aria-label = "Generation actions">
+                <button id = "generate" type = "button">
+                    <span class = "material-symbols-outlined" aria-hidden = "true">image</span>
+                    <span class = "button-label">Generate art</span>
+                </button>
+                <button id = "generate-3d" type = "button" disabled>
+                    <span class = "material-symbols-outlined" aria-hidden = "true">view_in_ar</span>
+                    <span class = "button-label">Generate 3D</span>
+                </button>
+            </div>
+
+            <div class = "instruction-column">
+                <label for = "art-instructions">character instructions</label>
+                <textarea
+                    id = "art-instructions"
+                    rows = "3"
+                    placeholder = "make this penguin look a little kawaii..."
+                ></textarea>
+            </div>
         </div>
-
-        <label for = "art-instructions">character instructions</label>
-        <textarea 
-            id = "art-instructions"
-            rows = "3"
-            placeholder = "make this penguin look a little kawaii..."
-        ></textarea>
 
         </section>
         <section 
