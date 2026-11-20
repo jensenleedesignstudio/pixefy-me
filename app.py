@@ -33,17 +33,37 @@ def generate():
             image = ("sketch.png", sketch.read(), "image/png"),
 
             prompt=(
-                "use this sketch as the reference for one charming cartoon character. "
-                "preserve its distinctive features, colours, expression, shape, and accessories. "
-                "render the character as a detailed, softly shaded 3d figurine, "
-                "viewed from a three-quarter angle so its front and side are visible. "
-                "give the head, body, and limbs clear volume and believable thickness. "
-                "complete missing parts in ways that fit the character's design. "
-                "show the entire character, including its feet, ears, and tail. "
-                "keep the limbs clearly separated and the silhouette easy to read. "
-                "use warm colours, simple materials, and soft lighting. "
-                "centre the character against a plain light background. use the following instructions"
-                "lightly trying to retain the original sketch as much as possible"
+                "transform the supplied sketch into a complete, three-dimensional cartoon character. "
+                "infer what the drawing represents from its shapes, facial features, pose, "
+                "and any written character instructions. "
+                "build directly from the sketch rather and do not replace it with a generic character. "
+                "unless stated otherise by the user instrctions"
+
+                "preserve the original silhouette, proportions, expression, pose, asymmetry, "
+                "distinctive markings, colours, and accessories wherever they are shown. "
+                "treat unusual shapes and proportions as intentional design choices. "
+
+                "interpret rough lines as guides to the intended forms. "
+                "connect disconnected shapes, resolve overlapping sketch lines, and fill small gaps "
+                "to create a coherent character while retaining the original design. "
+                "invent only the missing details needed to complete it. "
+                "do not add limbs, ears, tails, clothing, or accessories unless the sketch "
+                "or the user's instructions suggest them. "
+
+                "render the result as a softly shaded 3D figurine with solid, rounded forms "
+                "and clear depth. Translate drawn outlines into actual edges and volumes "
+                "rather than black lines painted onto a flat surface. "
+                "use the sketch's colours where provided; otherwise choose a restrained, "
+                "harmonious palette appropriate to the character. "
+
+                "show one complete character in a three-quarter view, keeping its pose "
+                "as close to the reference as possible. "
+                "keep visible limbs and accessories distinguishable. "
+                "centre the entire character with space around it against a plain light background. "
+                "Use soft, even lighting, without scenery, text, or additional characters. "
+
+                "apply the user's instructions to the requested features. "
+                "preserve the rest of the sketch wherever those instructions do not request a change. "
                 f"\nAdditional character instructions from the user: {instructions}"
             ),
             output_format = "png",
