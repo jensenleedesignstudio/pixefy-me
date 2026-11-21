@@ -391,3 +391,25 @@ label[for="art-instructions"] {
     font-weight: 400;
     color: #77746d;
 }
+
+.drawing-toolbar .icon-button {
+    border: 1px solid transparent;
+    background: transparent;
+    color: #77746d;
+}
+
+.drawing-toolbar .icon-button:hover:not(:disabled) {
+    background: #eeece5;
+    color: #302f2b;
+}
+
+.drawing-toolbar .icon-button[aria-pressed="true"] {
+    border-color: #c9c5bb;
+    background: #eeece5;
+    color: #302f2b;
+}
+
+.drawing-toolbar .icon-button:focus-visible {
+    outline: 2px solid #302f2b;
+    outline-offset: 3px;
+}
