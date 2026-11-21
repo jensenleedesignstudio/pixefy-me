@@ -413,3 +413,27 @@ label[for="art-instructions"] {
     outline: 2px solid #302f2b;
     outline-offset: 3px;
 }
+
+.instructions-area label {
+    font-size: 13px;
+    color: #77746d;
+}
+
+#art-instructions {
+    padding: 14px;
+    border: 1px solid #e3e0d8;
+    border-radius: 4px;
+    background: #f3f1eb;
+    color: #302f2b;
+    font: inherit;
+    line-height: 1.6;
+}
+
+#art-instructions::placeholder {
+    color: #88857d;
+}
+
+#art-instructions:focus-visible {
+    outline: 2px solid #77746d;
+    outline-offset: 2px;
+}
