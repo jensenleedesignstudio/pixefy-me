@@ -1,18 +1,20 @@
 body {
-    max-width: 1440px;
+    box-sizing: border-box;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 24px;
-    background-color: #f5f3ec;
-    color: #22221e;
+    padding: 64px 32px;
+    background-color: #fcfbf8;
+    color: #302f2b;
     font-family: "Courier New", monospace;
+    font-size: 14px;
     line-height: 1.5;
 }
 
 h1 {
-    margin: 0 0 24px;
-    font-size: 36px;
-    line-height: 1.2;
-    letter-spacing: -1px;
+    margin: 0 0 32px;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
 }
 
 .workspace {
@@ -28,8 +30,8 @@ h1 {
 .preview-panel {
     box-sizing: border-box;
     max-width: 100%;
-    background-color: #fffdf8;
-    border: 1px solid #d8d5cc;
+    background-color: transparent;
+    border: none;
     padding: 20px;
 }
 
@@ -44,9 +46,8 @@ h1 {
 }
 
 #drawing {
-    /* CSS scales the display; the drawing buffer stays at its HTML dimensions. */
     display: block;
-    border: 2px solid #22221e;
+    border: 1px solid #e3e0d8;
     background-color: #fff;
 }
 
@@ -383,4 +384,10 @@ label[for="art-instructions"] {
 
 .preview-panel:fullscreen #model-preview {
     height: calc(100dvh - 110px);
+}
+
+.workspace h2 {
+    font-size: 14px;
+    font-weight: 400;
+    color: #77746d;
 }
