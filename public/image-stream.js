@@ -11,7 +11,7 @@ export async function consumeImageStream(response, onEvent) {
     const decoder = new TextDecoder();
     let buffer = '';
     let ended = false;
-    function processMessage(message) {
+    async function processMessage(message) {
         const data = message.split('\n')
             .filter(line => line.startsWith('data:'))
             .map(line => line.slice(5).replace(/^ /, '')).join('\n');
@@ -29,7 +29,7 @@ export async function consumeImageStream(response, onEvent) {
             if (typeof event.image !== 'string' || !event.image) {
                 throw new Error('An image update was missing its image data.');
             }
-            onEvent(event);
+            await onEvent(event);
             return event.type === 'complete';
         }
         return false;
@@ -44,10 +44,10 @@ export async function consumeImageStream(response, onEvent) {
             while ((boundary = buffer.indexOf('\n\n')) !== -1) {
                 const message = buffer.slice(0, boundary);
                 buffer = buffer.slice(boundary + 2);
-                if (processMessage(message)) return;
+                if (await processMessage(message)) return;
             }
             if (done) {
-                if (buffer.trim() && processMessage(buffer)) return;
+                if (buffer.trim() && await processMessage(buffer)) return;
                 throw new Error('The connection ended before the final image arrived. Please try again.');
             }
         }

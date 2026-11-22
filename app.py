@@ -8,12 +8,14 @@ from tempfile import TemporaryDirectory
 from gradio_client import Client, handle_file
 import os
 import json
+from time import perf_counter
 
 app = Flask(__name__, static_folder = "public", static_url_path = "/static")
 
 load_dotenv()
 
 client = OpenAI()
+app.logger.setLevel("INFO")
 
 def format_stream_event(event_type, **details):
     payload = {
@@ -182,6 +184,9 @@ def generate_stream():
 
     @stream_with_context
     def events():
+        started_at = perf_counter()
+        preview_count = 0
+        app.logger.info("Image stream: request started")
         yield format_stream_event(
             "status",
             message="Starting image generation…",
@@ -197,7 +202,9 @@ def generate_stream():
                 partial_images=3,
             ) as stream:
                 for event in stream:
+                    app.logger.info("Image stream: %s after %.1fs", event.type, perf_counter() - started_at)
                     if event.type == "image_edit.partial_image":
+                        preview_count += 1
                         yield format_stream_event(
                             "preview",
                             image=event.b64_json,
@@ -207,6 +214,7 @@ def generate_stream():
                         yield format_stream_event(
                             "complete",
                             image=event.b64_json,
+                            previews_received=preview_count,
                         )
                         return
 

@@ -49,3 +49,15 @@ test('converts final base64 to a PNG blob and rejects corrupt base64', async () 
     assert.equal(await blob.text(), 'hello');
     assert.throws(() => imageFromBase64('!invalid!'), /invalid image data/);
 });
+
+
+test('awaits preview rendering even when multiple images arrive in one network chunk', async () => {
+    const order = [];
+    await consumeImageStream(response(message('preview', { image: 'eA==' })
+        + message('complete', { image: 'eQ==' })), async event => {
+        order.push('start-' + event.type);
+        await new Promise(resolve => setTimeout(resolve, 5));
+        order.push('paint-' + event.type);
+    });
+    assert.deepEqual(order, ['start-preview', 'paint-preview', 'start-complete', 'paint-complete']);
+});

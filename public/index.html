@@ -146,6 +146,7 @@
 
         </div>
 
+            <p id="artwork-progress" class="artwork-progress" role="status" aria-live="polite" hidden></p>
             <div class="preview-surface">
                 <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
             </div>
@@ -538,6 +539,9 @@
                 const finishEffect = beginGenerationEffect("art");
                 const preview = document.getElementById("preview");
                 const downloadLink = document.getElementById("download-art");
+                const progress = document.getElementById("artwork-progress");
+                progress.hidden = false;
+                progress.textContent = "Waiting for the first image preview…";
                 const previousPreview = preview.src;
                 const previousDownloadHidden = downloadLink.hidden;
                 let pendingPreviewUrl = null;
@@ -559,18 +563,24 @@
                     form.append("instructions", document.getElementById("art-instructions").value);
 
                     const response = await fetch("/generate-stream", { method: "POST", body: form });
-                    await consumeImageStream(response, function (event) {
+                    await consumeImageStream(response, async function (event) {
                         const image = imageFromBase64(event.image);
                         const nextUrl = URL.createObjectURL(image);
                         preview.src = nextUrl;
                         // Only revoke previews from this attempt; preserve the previous result for recovery.
                         if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
                         pendingPreviewUrl = nextUrl;
+                        // Decode and paint each genuine image before processing another update.
+                        await preview.decode();
                         if (event.type === "complete") {
                             finalImage = image;
                         } else {
                             previewCount += 1;
                             generateLabel.textContent = `Preview ${previewCount}…`;
+                            progress.textContent = `Preview ${previewCount} received — still generating…`;
+                        }
+                        if (!document.hidden) {
+                            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
                         }
                     });
 
@@ -581,10 +591,14 @@
                     pendingPreviewUrl = null;
                     downloadLink.href = artworkObjectUrl;
                     downloadLink.hidden = false;
+                    progress.textContent = previewCount
+                        ? `Artwork ready — ${previewCount} intermediate preview${previewCount === 1 ? "" : "s"} received.`
+                        : "Artwork ready — the model sent no intermediate previews.";
                     finishEffect(true);
                 } catch (error) {
                     preview.src = previousPreview;
                     downloadLink.hidden = previousDownloadHidden;
+                    progress.textContent = "Generation failed. Your previous artwork has been restored.";
                     alert(error.message || "Image generation failed. Please try again.");
                 } finally {
                     if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
