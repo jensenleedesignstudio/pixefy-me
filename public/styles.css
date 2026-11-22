@@ -437,3 +437,26 @@ label[for="art-instructions"] {
     outline: 2px solid #77746d;
     outline-offset: 2px;
 }
+
+.panel-select {
+    width: 36px;
+    height: 36px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: #77746d;
+}
+
+.panel-select:hover {
+    background: #eeece5;
+    color: #302f2b;
+}
+
+.panel-select:focus-visible {
+    outline: 2px solid #302f2b;
+    outline-offset: 3px;
+}
+
+.panel-select .material-symbols-outlined {
+    font-size: 20px;
+}
