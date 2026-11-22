@@ -56,22 +56,22 @@
                     <input type = "range" id = "brush-size" min = "1" max = "40" value = "6" aria-label = "Brush size" title = "Brush size">
                     <output id = "brush-size-value" for = "brush-size">6</output>
                 </div>
-                <button class = "icon-button" id = "eraser" type = "button" aria-label = "eraser" title = "eraser" aria-pressed = "false">
-                    <span class = "material-symbols-outlined" aria-hidden = "true">ink_eraser</span>
+                <button class = "shortcut-button" id = "eraser" type = "button" aria-label="Toggle eraser (Command e)" title="Toggle eraser (⌘E)" aria-pressed = "false" aria-keyshortcuts="Meta+e">
+                    <kbd class="shortcut-label" aria-hidden="true">⌘E</kbd>
                 </button>
             </div>
             <div class = "tool-group" role = "group" aria-label = "canvas actions">
-                <button class = "icon-button" id = "undo" type = "button" aria-label = "undo" title = "undo">
-                    <span class = "material-symbols-outlined" aria-hidden = "true">undo</span>
+                <button class = "shortcut-button" id = "undo" type = "button" aria-label="Undo (Command z)" title="Undo (⌘Z)" aria-keyshortcuts="Meta+z">
+                    <kbd class="shortcut-label" aria-hidden="true">⌘Z</kbd>
                 </button>
-                <button class = "icon-button" id = "clear" type = "button" aria-label = "clear canvas" title = "clear canvas">
-                    <span class = "material-symbols-outlined" aria-hidden = "true">delete</span>
+                <button class = "shortcut-button" id = "clear" type = "button" aria-label="Clear canvas (Command Backspace)" title="Clear canvas (⌘⌫)" aria-keyshortcuts="Meta+Backspace">
+                    <kbd class="shortcut-label" aria-hidden="true">⌘⌫</kbd>
                 </button>
-                <button class = "icon-button" id = "upload-button" type = "button" aria-label = "upload image" title = "upload image">
-                    <span class = "material-symbols-outlined" aria-hidden = "true">upload</span>
+                <button class = "shortcut-button" id = "upload-button" type = "button" aria-label="Upload image (Command o)" title="Upload image (⌘O)" aria-keyshortcuts="Meta+o">
+                    <kbd class="shortcut-label" aria-hidden="true">⌘O</kbd>
                 </button>
-                <button class = "icon-button" id = "save-sketch" type = "button" aria-label = "save sketch" title = "save sketch">
-                    <span class = "material-symbols-outlined" aria-hidden = "true">download</span>
+                <button class = "shortcut-button" id = "save-sketch" type = "button" aria-label="Save sketch (Command s)" title="Save sketch (⌘S)" aria-keyshortcuts="Meta+s">
+                    <kbd class="shortcut-label" aria-hidden="true">⌘S</kbd>
                 </button>
             </div>
 
@@ -582,6 +582,25 @@
 
                     uploadButton.addEventListener("click", function () {
                 photoUpload.click();
+            });
+
+            // Shortcuts operate on the canvas; typing fields keep native text commands.
+            document.addEventListener("keydown", function (event) {
+                if (!event.metaKey || event.altKey || event.ctrlKey || event.shiftKey
+                    || event.repeat || event.isComposing) return;
+                if (event.target.closest?.("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) return;
+                if (!document.getElementById("canvas-panel").classList.contains("is-active")) return;
+
+                const shortcuts = {
+                    z: "undo", e: "eraser", backspace: "clear",
+                    o: "upload-button", s: "save-sketch"
+                };
+                const targetId = shortcuts[event.key.toLowerCase()];
+                if (!targetId) return;
+                const button = document.getElementById(targetId);
+                if (button.disabled) return;
+                event.preventDefault();
+                button.click();
             });
 
             photoUpload.addEventListener("change", async function () {
