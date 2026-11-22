@@ -191,7 +191,9 @@ h1 {
 
 .workspace h2 {
     margin: 0 0 12px;
-    font-size: 20px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #77746d;
 }
 
 #model-preview {
@@ -386,12 +388,6 @@ label[for="art-instructions"] {
     height: calc(100dvh - 110px);
 }
 
-.workspace h2 {
-    font-size: 14px;
-    font-weight: 400;
-    color: #77746d;
-}
-
 .drawing-toolbar .icon-button {
     border: 1px solid transparent;
     background: transparent;
@@ -414,7 +410,7 @@ label[for="art-instructions"] {
     outline-offset: 3px;
 }
 
-.instructions-area label {
+.instruction-column label {
     font-size: 13px;
     color: #77746d;
 }
