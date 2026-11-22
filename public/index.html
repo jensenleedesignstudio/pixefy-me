@@ -189,6 +189,31 @@
             const panels = document.querySelectorAll(".workspace > section");
             const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
             const panelAnimations = new Map();
+            const revealElements = document.querySelectorAll(".reveal-line");
+
+            function finishReveal(element) {
+                element.classList.add("reveal-complete");
+            }
+
+            function finishEntranceAnimations() {
+                revealElements.forEach(finishReveal);
+            }
+
+            revealElements.forEach(function (element) {
+                function onRevealFinished(event) {
+                    if (event.target === element && event.animationName === "reveal") {
+                        finishReveal(element);
+                    }
+                }
+                element.addEventListener("animationend", onRevealFinished);
+                element.addEventListener("animationcancel", onRevealFinished);
+                // Focusing early reveals the content permanently, rather than restarting on blur.
+                element.addEventListener("focusin", function () {
+                    finishReveal(element);
+                });
+            });
+            if (reducedMotion.matches) finishEntranceAnimations();
+
 
             function cancelPanelAnimations() {
                 panelAnimations.forEach(function (animation) {
@@ -200,6 +225,9 @@
             function setActivePanel(view) {
                 const selectedPanel = Array.from(panels).find(panel => panel.dataset.view === view);
                 if (!selectedPanel || selectedPanel.classList.contains("is-active")) return;
+
+                // Entering the workspace ends its one-time intro, even on an early click.
+                finishEntranceAnimations();
 
                 // First: capture visible positions, including any unfinished animation.
                 const first = Array.from(panels, panel => panel.getBoundingClientRect());
@@ -246,7 +274,10 @@
             // A changed viewport or motion preference should immediately show the final layout.
             window.addEventListener("resize", cancelPanelAnimations);
             reducedMotion.addEventListener("change", function () {
-                if (reducedMotion.matches) cancelPanelAnimations();
+                if (reducedMotion.matches) {
+                    cancelPanelAnimations();
+                    finishEntranceAnimations();
+                }
             });
 
             const panelButtons = document.querySelectorAll(".panel-select");

@@ -711,6 +711,7 @@ label[for="art-instructions"] {
     }
 }
 
+.reveal-line.reveal-complete,
 .reveal-line:focus-within {
     opacity: 1;
     transform: none;
