@@ -460,3 +460,41 @@ label[for="art-instructions"] {
 .panel-select .material-symbols-outlined {
     font-size: 20px;
 }
+
+.drawing-actions {
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.drawing-actions button {
+    min-height: 40px;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+#generate {
+    background: #302f2b;
+    border-color: #302f2b;
+    color: #fcfbf8;
+}
+
+#generate:hover:not(:disabled) {
+    background: #49473f;
+}
+
+#generate-3d {
+    background: transparent;
+    border-color: #d8d4ca;
+    color: #55524b;
+}
+
+#generate-3d:hover:not(:disabled) {
+    background: #eeece5;
+}
+
+.drawing-actions button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
