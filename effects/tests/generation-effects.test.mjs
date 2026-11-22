@@ -33,7 +33,7 @@ test('generation background handles completion, overlap, failure, and reduced mo
         const ready = [...timers.values()].find(t => t.delay === 1800);
         ready.fn();
         assert.equal(status.hidden, true);
-        assert(!classes.has('is-visible'));
+        assert(classes.has('is-visible')); // The finished pixel background remains.
         const failed = beginGenerationEffect('art');
         failed(false);
         assert.equal(status.hidden, true);

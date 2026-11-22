@@ -1,19 +1,32 @@
-# Generation background
+# Pixel ripple generation background
 
-The app lazily loads the actual `@shadergradient/react` renderer while generating
-artwork or a 3D model. The renderer owns a decorative fixed background only;
-it never draws into or replaces the sketch canvas.
+Generation starts with grainy paper. The first droplet appears after 650ms, then
+another about every 1.25 seconds. Large physical pixels and nearest-neighbour
+scaling produce stepped ring edges. A separate low-resolution ink canvas stores
+translucent colour stains permanently as the rings expand.
 
-`public/generation-effects.js` tracks overlapping requests and shows a ready state
-for 1.8 seconds after success. Failure clears the effect. The renderer unmounts
-after fading out, when the tab is hidden, or when reduced motion is requested.
-Reduced motion uses the static CSS gradient. The CSS background is also the
-fallback for unavailable WebGL or a failed bundle. An error boundary protects the
-rest of the interface from renderer failures.
+When generation succeeds, the controller calls `settle()`: moving rings disappear,
+the animation loop stops, and the accumulated pixel colours remain behind the
+result. The ready message hides after 1.8 seconds without clearing the background.
+A new generation disposes that canvas and starts again from uncoloured paper.
+Failures clear the current effect. Overlapping requests settle only after the last
+request completes. Hiding the tab pauses the renderer rather than losing its ink.
+Resizing preserves the finished colours.
 
-## Edit and rebuild
+The renderer is custom Canvas 2D and never modifies the sketch or generated art.
+Reduced-motion users get a static grain surface without starting the animation.
+The source retains its existing filename/export for compatibility with the app.
+Previous library dependencies remain installed, but this small bundle imports none
+of them.
 
-From the project root:
+## Appearance settings
+
+- `effects/src/shader-background.jsx`: `pixelSize` (currently 4 CSS pixels), palette,
+  droplet positions, interval, radius, and absorption strength.
+- `public/styles.css`: static grain in `#generation-background::after`.
+- `public/generation-effects.js`: request lifecycle and completed-background state.
+
+## Build and test
 
 ```sh
 cd effects
@@ -22,16 +35,7 @@ npm run build
 npm test
 ```
 
-The generated `../public/shader-background.js` bundle is checked in, so Flask and
-Vercel can serve it without a Node build step. Include the rebuilt bundle whenever
-you change `src/shader-background.jsx`. The visual renderer is about 1.1 MB before
-HTTP compression and is downloaded only when generation starts.
-
-- `effects/src/shader-background.jsx`: renderer and warm palette settings.
-- `public/generation-effects.js`: lifecycle and status messages.
-- `public/index.html`: generation hooks.
-- `public/styles.css`: layering, static fallback, and reduced-motion styling.
-
-No backend changes or new Python dependencies are required.
-
-Reference: https://github.com/ruucm/shadergradient
+Commit the rebuilt `public/shader-background.js` with source changes; Flask and
+Vercel serve the checked-in bundle without needing a Node build step. Use the
+“test generation effect (no credits)” button to preview the full loading and
+completed-background behaviour without calling AI providers.

@@ -10,6 +10,7 @@ let dispose;
 let fadeTimer;
 let readyTimer;
 let visible = false;
+let settled = false;
 
 async function showRenderer() {
     if (!visible || motion.matches || document.hidden || dispose) return;
@@ -18,9 +19,10 @@ async function showRenderer() {
         const module = await loadedModule;
         if (visible && !motion.matches && !document.hidden && !dispose) {
             dispose = module.mountShaderBackground(shaderHost);
+            if (settled) dispose.settle?.();
         }
     } catch {
-        // The CSS gradient remains usable if WebGL or the optional bundle fails.
+        // The static grain remains visible if the optional ripple renderer fails.
         loadedModule = undefined;
     }
 }
@@ -41,6 +43,7 @@ function show(message) {
 }
 
 function hide() {
+    settled = false;
     visible = false;
     host.classList.remove('is-visible');
     status.hidden = true;
@@ -55,6 +58,11 @@ function pendingMessage() {
 
 export function beginGenerationEffect(kind) {
     const id = ++sequence;
+    if (pending.size === 0) {
+        // A fresh generation starts with uncoloured paper, not the last result's ink.
+        settled = false;
+        stopRenderer();
+    }
     pending.set(id, kind);
     show(pendingMessage());
     let finished = false;
@@ -65,8 +73,11 @@ export function beginGenerationEffect(kind) {
         if (pending.size) {
             show(pendingMessage());
         } else if (success) {
+            settled = true;
             show(kind === 'model' ? 'Your 3D model is ready' : 'Your artwork is ready');
-            readyTimer = setTimeout(hide, 1800);
+            // Keep the absorbed pixel colours on screen, with no running animation.
+            dispose?.settle?.();
+            readyTimer = setTimeout(() => { status.hidden = true; }, 1800);
         } else {
             hide();
         }
@@ -74,16 +85,16 @@ export function beginGenerationEffect(kind) {
 }
 
 document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stopRenderer();
-    else showRenderer();
+    if (document.hidden) dispose?.pause?.();
+    else {
+        dispose?.resume?.();
+        showRenderer();
+    }
 });
 motion.addEventListener('change', () => {
-    if (motion.matches) stopRenderer();
-    else showRenderer();
+    if (motion.matches) dispose?.pause?.();
+    else {
+        dispose?.resume?.();
+        showRenderer();
+    }
 });
-
-// A failed WebGL context must not affect uploads, drawing, or generation.
-host.addEventListener('webglcontextlost', event => {
-    event.preventDefault();
-    stopRenderer();
-}, true);
