@@ -46,12 +46,10 @@
         <div class = "drawing-toolbar" role = "group" aria-label = "drawing tools">
             <div class = "tool-group" role = "group" aria-label = "brush settings">
                 <div class = "color-control">
-                    <label for = "brush-color">colour</label>
-                    <input type = "color" id = "brush-color" value = "#000000" title = "brush colour">
+                    <input type = "color" id = "brush-color" value = "#000000" aria-label = "Brush colour" title = "Brush colour">
                 </div>
                 <div class = "size-control">
-                    <label for = "brush-size">brush</label>
-                    <input type = "range" id = "brush-size" min = "1" max = "40" value = "6">
+                    <input type = "range" id = "brush-size" min = "1" max = "40" value = "6" aria-label = "Brush size" title = "Brush size">
                     <output id = "brush-size-value" for = "brush-size">6</output>
                 </div>
                 <button class = "icon-button" id = "eraser" type = "button" aria-label = "eraser" title = "eraser" aria-pressed = "false">
