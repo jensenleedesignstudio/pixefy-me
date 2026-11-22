@@ -875,10 +875,3 @@ body > h1,
 .shader-host canvas {
     image-rendering: pixelated;
 }
-.artwork-progress {
-    margin: 0 0 8px;
-    color: #77746d;
-    font-size: 12px;
-    line-height: 1.4;
-    flex-shrink: 0;
-}

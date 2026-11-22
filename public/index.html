@@ -146,7 +146,6 @@
 
         </div>
 
-            <p id="artwork-progress" class="artwork-progress" role="status" aria-live="polite" hidden></p>
             <div class="preview-surface">
                 <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
             </div>
@@ -202,7 +201,6 @@
 
         <script type="module">
             import { beginGenerationEffect } from "./generation-effects.js";
-            import { consumeImageStream, imageFromBase64 } from "./image-stream.js";
 
             // Temporary visual test: uses the same effects, but never sends a request.
             const testEffectButton = document.getElementById("test-generation-effect");
@@ -222,7 +220,6 @@
             });
 
             let generatedImage = null;
-            let artworkObjectUrl = null;
 
             const panels = document.querySelectorAll(".workspace > section");
             const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -534,82 +531,56 @@
             const generateButton = document.getElementById("generate");
             const generateLabel = generateButton.querySelector(".button-label");
 
-            generateButton.addEventListener("click", async function () {
-                if (generateButton.disabled) return;
+            generateButton.addEventListener("click", function () {
                 const finishEffect = beginGenerationEffect("art");
-                const preview = document.getElementById("preview");
-                const downloadLink = document.getElementById("download-art");
-                const progress = document.getElementById("artwork-progress");
-                progress.hidden = false;
-                progress.textContent = "Waiting for the first image preview…";
-                const previousPreview = preview.src;
-                const previousDownloadHidden = downloadLink.hidden;
-                let pendingPreviewUrl = null;
-                let finalImage = null;
-                let previewCount = 0;
-
-                generateButton.disabled = true;
-                generate3dButton.disabled = true;
-                downloadLink.hidden = true;
-                generateLabel.textContent = "Generating…";
+                generateButton.disabled = true; 
+                generateLabel.textContent = "Generating...";
                 generateButton.setAttribute("aria-busy", "true");
-                preview.setAttribute("aria-busy", "true");
 
-                try {
-                    const sketch = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-                    if (!sketch) throw new Error("Could not export the drawing. Please try again.");
+                canvas.toBlob(function (sketch) {
+                    if (!sketch) {
+                        finishEffect(false);
+                        generateButton.disabled = false;
+                        generateLabel.textContent = "Generate art";
+                        generateButton.removeAttribute("aria-busy");
+                        alert("Could not export the drawing. Please try again.");
+                        return;
+                    }
                     const form = new FormData();
                     form.append("sketch", sketch, "sketch.png");
-                    form.append("instructions", document.getElementById("art-instructions").value);
+                    const instructions = document.getElementById("art-instructions").value;
+                    form.append("instructions", instructions);
 
-                    const response = await fetch("/generate-stream", { method: "POST", body: form });
-                    await consumeImageStream(response, async function (event) {
-                        const image = imageFromBase64(event.image);
-                        const nextUrl = URL.createObjectURL(image);
-                        preview.src = nextUrl;
-                        // Only revoke previews from this attempt; preserve the previous result for recovery.
-                        if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
-                        pendingPreviewUrl = nextUrl;
-                        // Decode and paint each genuine image before processing another update.
-                        await preview.decode();
-                        if (event.type === "complete") {
-                            finalImage = image;
-                        } else {
-                            previewCount += 1;
-                            generateLabel.textContent = `Preview ${previewCount}…`;
-                            progress.textContent = `Preview ${previewCount} received — still generating…`;
-                        }
-                        if (!document.hidden) {
-                            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-                        }
-                    });
+                    fetch("/generate", { method: "POST", body: form })
+                        .then(async response => {
+                            if (!response.ok) {
+                                const message = await response.text();
+                                throw new Error(message);
+                            }
 
-                    // Only a completed image becomes downloadable or eligible for 3D conversion.
-                    generatedImage = finalImage;
-                    if (artworkObjectUrl) URL.revokeObjectURL(artworkObjectUrl);
-                    artworkObjectUrl = pendingPreviewUrl;
-                    pendingPreviewUrl = null;
-                    downloadLink.href = artworkObjectUrl;
-                    downloadLink.hidden = false;
-                    progress.textContent = previewCount
-                        ? `Artwork ready — ${previewCount} intermediate preview${previewCount === 1 ? "" : "s"} received.`
-                        : "Artwork ready — the model sent no intermediate previews.";
-                    finishEffect(true);
-                } catch (error) {
-                    preview.src = previousPreview;
-                    downloadLink.hidden = previousDownloadHidden;
-                    progress.textContent = "Generation failed. Your previous artwork has been restored.";
-                    alert(error.message || "Image generation failed. Please try again.");
-                } finally {
-                    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
-                    generateButton.disabled = false;
-                    generateLabel.textContent = "Generate art";
-                    generateButton.removeAttribute("aria-busy");
-                    preview.removeAttribute("aria-busy");
-                    generate3dButton.disabled = !generatedImage
-                        || generate3dButton.getAttribute("aria-busy") === "true";
-                    finishEffect(false);
-                }
+                            return response.blob();
+                        })
+                        .then(image => {
+                            generatedImage = image;
+                            generate3dButton.disabled = false;
+                            const preview = document.getElementById("preview");
+                            preview.src = URL.createObjectURL(image);
+
+                            const downloadLink = document.getElementById("download-art");
+                            downloadLink.href = preview.src;
+                            downloadLink.hidden = false;
+                            finishEffect(true);
+                        })
+                        .catch(error => {
+                            alert(error.message);
+                        })
+                        .finally(() => {
+                            generateButton.disabled = false; 
+                            generateLabel.textContent = "Generate art";
+                            generateButton.removeAttribute("aria-busy");
+                            finishEffect(false);
+                        });
+                }, "image/png");
             });
 
             const generate3dButton = document.getElementById("generate-3d");
@@ -646,7 +617,7 @@
                         alert(error.message);
                     })
                     .finally(() => {
-                        generate3dButton.disabled = !generatedImage || generateButton.disabled;
+                        generate3dButton.disabled = false;
                         generate3dLabel.textContent = "Generate 3D";
                         generate3dButton.removeAttribute("aria-busy");
                         finishEffect(false);
