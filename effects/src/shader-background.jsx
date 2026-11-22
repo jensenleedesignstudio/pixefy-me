@@ -10,7 +10,7 @@ export function mountShaderBackground(host) {
     if (!context || !inkContext) return () => {};
     host.appendChild(canvas);
 
-    const pixelSize = 4;
+    const pixelSize = 1;
     const palette = [[177, 132, 99], [136, 153, 124], [198, 163, 108], [157, 143, 167]];
     const positions = [[0.82, 0.74], [0.16, 0.82], [0.64, 0.12], [0.94, 0.38]];
     const ripples = [];
