@@ -72,7 +72,7 @@ h1 {
 }
 
 .drawing-toolbar {
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 16px;
 }
 
@@ -81,7 +81,7 @@ h1 {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-height: 44px;
+    min-height: 32px;
     font-size: 14px;
 }
 
@@ -91,8 +91,8 @@ h1 {
 
 #brush-color {
     box-sizing: border-box;
-    width: 44px;
-    height: 44px;
+    width: 32px;
+    height: 32px;
     padding: 5px;
     border: 1px solid #b7b3a7;
     border-radius: 0;
@@ -102,7 +102,7 @@ h1 {
 
 #brush-size {
     width: 80px;
-    height: 44px;
+    height: 32px;
     margin: 0;
     accent-color: #22221e;
     cursor: pointer;
@@ -125,9 +125,9 @@ h1 {
     justify-content: center;
     gap: 8px;
     box-sizing: border-box;
-    min-height: 44px;
+    min-height: 32px;
     border: 1px solid #b7b3a7;
-    padding: 10px 12px;
+    padding: 6px 10px;
     background-color: #f5f3ec;
     color: #22221e;
     font: inherit;
@@ -135,9 +135,9 @@ h1 {
 }
 
 .drawing-toolbar .icon-button {
-    width: 44px;
+    width: 32px;
     padding: 0;
-    flex: 0 0 44px;
+    flex: 0 0 32px;
 }
 
 .drawing-toolbar button:hover:not(:disabled),
@@ -268,7 +268,7 @@ label[for="art-instructions"] {
 
 .material-symbols-outlined {
     flex-shrink: 0;
-    font-size: 22px;
+    font-size: 18px;
     line-height: 1;
 }
 
@@ -355,8 +355,8 @@ label[for="art-instructions"] {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 44px;
-    height: 44px;
+    width: 32px;
+    height: 32px;
     border: 1px solid #b7b3a7;
     background: transparent;
     color: inherit;
@@ -435,8 +435,8 @@ label[for="art-instructions"] {
 }
 
 .panel-select {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
@@ -454,7 +454,7 @@ label[for="art-instructions"] {
 }
 
 .panel-select .material-symbols-outlined {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .drawing-actions {
@@ -463,10 +463,10 @@ label[for="art-instructions"] {
 }
 
 .drawing-actions button {
-    min-height: 40px;
-    padding: 8px 14px;
+    min-height: 32px;
+    padding: 6px 10px;
     border-radius: 4px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 400;
 }
 
