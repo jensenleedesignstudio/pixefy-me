@@ -234,7 +234,7 @@ h1 {
     column-gap: 16px;
 }
 
-.canvas-layout > #drawing {
+.canvas-layout > .canvas-surface {
     grid-area: canvas;
     align-self: start;
     min-width: 0;
@@ -692,4 +692,35 @@ label[for="art-instructions"] {
 
 #eraser[aria-pressed="true"] .material-symbols-outlined {
     font-variation-settings: "FILL" 1;
+}
+
+/* Same reveal pattern as the portfolio; outer panels retain their FLIP transforms. */
+.reveal-line {
+    opacity: 0;
+    animation: reveal 0.8s ease forwards;
+}
+
+@keyframes reveal {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reveal-line:focus-within {
+    opacity: 1;
+    transform: none;
+    animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal-line {
+        opacity: 1;
+        transform: none;
+        animation: none;
+    }
 }

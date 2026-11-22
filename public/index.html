@@ -99,12 +99,14 @@
                     </div>
                 </div>
             </div>
-            <canvas id = "drawing" width = "600" height = "350">
-            </canvas>
+            <div class="canvas-surface reveal-line" style="animation-delay: 0.5s;">
+                <canvas id = "drawing" width = "600" height = "350">
+                </canvas>
+            </div>
 
 
 
-            <div class = "instruction-column">
+            <div class="instruction-column reveal-line" style="animation-delay: 0.65s;">
                 <textarea
                     id = "art-instructions"
                     rows = "3"
@@ -120,6 +122,7 @@
             data-view = "art"
         >
             <button type="button" class="thumbnail-select" aria-label="Open artwork in main panel" title="Open artwork"></button>
+            <div class="reveal-line" style="animation-delay: 0.8s;">
 
         <div class = "panel-header">
             <h2>artwork</h2>
@@ -141,6 +144,7 @@
             <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
 
             <a id = "download-art" download = "pixel-art.png" hidden>download art</a>
+                    </div>
         </section>
 
         <section
@@ -149,6 +153,7 @@
             data-view = "model"
         >
             <button type="button" class="thumbnail-select" aria-label="Open 3D model in main panel" title="Open 3D model"></button>
+            <div class="reveal-line" style="animation-delay: 0.95s;">
 
         <div class = "panel-header">
             <h2>3d preview</h2>
@@ -174,6 +179,7 @@
                 camera-controls>
             </model-viewer>
 
+                    </div>
         </section>
         </main>
 
