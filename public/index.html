@@ -29,21 +29,25 @@
         >
             <button type="button" class="thumbnail-select" aria-label="Open canvas in main panel" title="Open canvas" hidden></button>
 
-        <div class = "panel-header">
-            <button 
-                type = "button" 
-                class = "panel-select" 
-                data-target = "canvas"
-                aria-label = "show canvas in main panel"
-                title = "show canvas"
-            >
-                <span class = "material-symbols-outlined" aria-hidden = "true">
-                    open_in_full
-                </span>
-            </button>
-        </div>
 
-        <div class = "drawing-toolbar" role = "group" aria-label = "drawing tools">
+
+
+        <input
+            type = "file"
+            id = "photo-upload"
+            accept = "image/png,image/jpeg,image/webp"
+            hidden>
+
+        <div class = "canvas-layout">
+            <div class="drawing-toolbar" role="group" aria-label="Canvas controls">
+                <button id="toolbar-toggle" type="button" aria-expanded="true"
+                    aria-controls="toolbar-drawer" aria-label="Collapse canvas controls"
+                    title="Collapse canvas controls">
+                    <span aria-hidden="true">&hellip;</span>
+                </button>
+                <div id="toolbar-drawer" class="toolbar-drawer">
+                    <div class="toolbar-items">
+
             <div class = "tool-group" role = "group" aria-label = "brush settings">
                 <div class = "color-control">
                     <input type = "color" id = "brush-color" value = "#000000" aria-label = "Brush colour" title = "Brush colour">
@@ -70,27 +74,35 @@
                     <span class = "material-symbols-outlined" aria-hidden = "true">download</span>
                 </button>
             </div>
-        </div>
-        <input
-            type = "file"
-            id = "photo-upload"
-            accept = "image/png,image/jpeg,image/webp"
-            hidden>
 
-        <div class = "canvas-layout">
-            <canvas id = "drawing" width = "600" height = "350">
-            </canvas>
-
-            <div class = "drawing-actions" role = "group" aria-label = "Generation actions">
-                <button id = "generate" type = "button">
+<div class = "drawing-actions" role = "group" aria-label = "Generation actions">
+                <button id = "generate" type = "button" title="Generate artwork">
                     <span class = "material-symbols-outlined" aria-hidden = "true">image</span>
                     <span class = "button-label">generate art</span>
                 </button>
-                <button id = "generate-3d" type = "button" disabled>
+                <button id = "generate-3d" type = "button" title="Generate 3D model" disabled>
                     <span class = "material-symbols-outlined" aria-hidden = "true">view_in_ar</span>
                     <span class = "button-label">generate 3d</span>
                 </button>
             </div>
+<button
+                type = "button"
+                class = "panel-select"
+                data-target = "canvas"
+                aria-label = "show canvas in main panel"
+                title = "show canvas"
+            >
+                <span class = "material-symbols-outlined" aria-hidden = "true">
+                    open_in_full
+                </span>
+            </button>
+                    </div>
+                </div>
+            </div>
+            <canvas id = "drawing" width = "600" height = "350">
+            </canvas>
+
+
 
             <div class = "instruction-column">
                 <textarea
@@ -303,6 +315,34 @@
             const uploadButton = document.getElementById("upload-button");
             const photoUpload = document.getElementById("photo-upload");
             const undoHistory = [];
+
+            const toolbar = document.querySelector(".drawing-toolbar");
+            const toolbarToggle = document.getElementById("toolbar-toggle");
+            const toolbarDrawer = document.getElementById("toolbar-drawer");
+
+            function setToolbarExpanded(expanded) {
+                toolbar.classList.toggle("is-collapsed", !expanded);
+                toolbarToggle.setAttribute("aria-expanded", String(expanded));
+                const label = expanded ? "Collapse canvas controls" : "Expand canvas controls";
+                toolbarToggle.setAttribute("aria-label", label);
+                toolbarToggle.title = label;
+                // Keep collapsing controls out of keyboard and screen-reader navigation.
+                toolbarDrawer.inert = !expanded;
+                toolbarDrawer.setAttribute("aria-hidden", String(!expanded));
+            }
+
+            toolbarToggle.addEventListener("click", function () {
+                setToolbarExpanded(toolbarToggle.getAttribute("aria-expanded") !== "true");
+            });
+
+            toolbar.addEventListener("keydown", function (event) {
+                // Preserve Escape's native fullscreen behaviour.
+                if (event.key === "Escape" && !document.fullscreenElement) {
+                    toolbarToggle.focus();
+                    setToolbarExpanded(false);
+                }
+            });
+
 
             sizePicker.addEventListener("input", function () {
                 sizeValue.value = sizePicker.value;
