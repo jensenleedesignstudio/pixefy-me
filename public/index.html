@@ -27,6 +27,7 @@
             class = "drawing-panel is-active"
             data-view = "canvas"
         >
+            <button type="button" class="thumbnail-select" aria-label="Open canvas in main panel" title="Open canvas" hidden></button>
 
         <div class = "panel-header">
             <button 
@@ -108,6 +109,7 @@
             class = "preview-panel"
             data-view = "art"
         >
+            <button type="button" class="thumbnail-select" aria-label="Open artwork in main panel" title="Open artwork"></button>
 
         <div class = "panel-header">
             <h2>artwork</h2>
@@ -136,6 +138,7 @@
             class = "preview-panel"
             data-view = "model"
         >
+            <button type="button" class="thumbnail-select" aria-label="Open 3D model in main panel" title="Open 3D model"></button>
 
         <div class = "panel-header">
             <h2>3d preview</h2>
@@ -235,7 +238,18 @@
             function updatePanelButtons() {
                 panels.forEach(function (panel) {
                     const button = panel.querySelector(".panel-select");
-                    const name = panel.querySelector("h2").textContent;
+                    const name = { canvas: "canvas", art: "artwork", model: "3D model" }[panel.dataset.view];
+                    const isActive = panel.classList.contains("is-active");
+                    const thumbnail = panel.querySelector(".thumbnail-select");
+                    button.hidden = !isActive;
+                    thumbnail.hidden = isActive;
+
+                    // The thumbnail button handles interaction until this view is active.
+                    const content = panel.querySelector("model-viewer");
+                    if (content) content.inert = !isActive;
+                    const download = panel.querySelector("#download-art");
+                    if (download) download.inert = !isActive;
+
                     const isFullscreen = document.fullscreenElement === panel;
                     const label = isFullscreen ? "exit fullscreen"
                         : panel.classList.contains("is-active") ? `view ${name} fullscreen`
@@ -253,13 +267,18 @@
             });
             updatePanelButtons();
 
+            panels.forEach(function (panel) {
+                panel.querySelector(".thumbnail-select").addEventListener("click", function () {
+                    setActivePanel(panel.dataset.view);
+                    // Move focus to a visible control after hiding the thumbnail button.
+                    panel.querySelector(".panel-select").focus({ preventScroll: true });
+                });
+            });
+
             panelButtons.forEach(function (button) {
                 button.addEventListener("click", async function () {
                     const panel = button.closest("section");
-                    if (!panel.classList.contains("is-active")) {
-                        setActivePanel(button.dataset.target);
-                        return;
-                    }
+                    if (!panel.classList.contains("is-active")) return;
 
                     // Finish any panel swap before the browser takes over fullscreen.
                     cancelPanelAnimations();

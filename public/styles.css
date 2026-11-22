@@ -494,3 +494,38 @@ label[for="art-instructions"] {
     opacity: 0.45;
     cursor: not-allowed;
 }
+/* Small previews are selection buttons; only the main view shows fullscreen. */
+.workspace > section {
+    position: relative;
+}
+
+.thumbnail-select {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.thumbnail-select:hover {
+    box-shadow: inset 0 0 0 1px #d8d4ca;
+}
+
+.thumbnail-select:focus-visible {
+    outline: 2px solid #302f2b;
+    outline-offset: 3px;
+}
+
+.panel-select[hidden],
+.thumbnail-select[hidden] {
+    display: none;
+}
+
+.panel-header .panel-select {
+    margin-left: auto;
+}
