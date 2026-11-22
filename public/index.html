@@ -142,7 +142,9 @@
 
         </div>
 
-            <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
+            <div class="preview-surface">
+                <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
+            </div>
 
             <a id = "download-art" download = "pixel-art.png" hidden>download art</a>
                     </div>
@@ -173,12 +175,14 @@
 
         </div>
 
-            <model-viewer
+            <div class="preview-surface">
+                <model-viewer
                 id = "model-preview"
                 src = "kawaiipenguin.glb"
                 alt = "3d model of your character"
                 camera-controls>
             </model-viewer>
+            </div>
 
                     </div>
         </section>
@@ -223,6 +227,23 @@
                 panelAnimations.clear();
             }
 
+            function syncPreviewSizes() {
+                const workspace = document.querySelector(".workspace");
+                const canvasPanel = document.getElementById("canvas-panel");
+                const instructions = document.getElementById("art-instructions");
+                const column = instructions.closest(".instruction-column");
+                const aligned = canvasPanel.classList.contains("is-active")
+                    && window.innerWidth > 960 && !document.fullscreenElement
+                    && instructions.offsetHeight >= 240;
+                workspace.classList.toggle("previews-aligned", aligned);
+                if (aligned) {
+                    const gap = parseFloat(getComputedStyle(workspace).rowGap) || 0;
+                    workspace.style.setProperty("--preview-card-height",
+                        `${(instructions.offsetHeight - gap) / 2}px`);
+                    workspace.style.setProperty("--preview-top-offset", `${column.offsetTop}px`);
+                }
+            }
+
             function setActivePanel(view) {
                 const selectedPanel = Array.from(panels).find(panel => panel.dataset.view === view);
                 if (!selectedPanel || selectedPanel.classList.contains("is-active")) return;
@@ -240,6 +261,7 @@
                     panel.classList.toggle("is-active", isSelected);
                 });
                 updatePanelButtons();
+                syncPreviewSizes();
 
                 if (reducedMotion.matches || !selectedPanel.animate) return;
                 const last = Array.from(panels, panel => panel.getBoundingClientRect());
@@ -312,8 +334,16 @@
             document.addEventListener("fullscreenchange", function () {
                 cancelPanelAnimations();
                 updatePanelButtons();
+                syncPreviewSizes();
             });
             updatePanelButtons();
+            syncPreviewSizes();
+            window.addEventListener("resize", syncPreviewSizes);
+            if (window.ResizeObserver) {
+                const previewSizeObserver = new ResizeObserver(syncPreviewSizes);
+                previewSizeObserver.observe(document.getElementById("art-instructions"));
+                previewSizeObserver.observe(document.getElementById("canvas-panel"));
+            }
 
             panels.forEach(function (panel) {
                 panel.querySelector(".thumbnail-select").addEventListener("click", function () {

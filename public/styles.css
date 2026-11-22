@@ -55,8 +55,7 @@ h1 {
 
 .preview-panel {
     width: 442px;
-    background-color: var(--surface-warm);
-    border-radius: 4px;
+    background-color: transparent;
 }
 
 #drawing {
@@ -405,7 +404,7 @@ label[for="art-instructions"] {
 }
 
 .workspace > .preview-panel:fullscreen {
-    background-color: var(--surface-warm);
+    background-color: #fcfbf8;
 }
 
 .workspace > section::backdrop {
@@ -738,4 +737,61 @@ label[for="art-instructions"] {
         transform: none;
         animation: none;
     }
+}
+
+/* Headings sit above the beige media surface, like the reference. */
+.preview-panel {
+    padding: 0;
+}
+
+.preview-panel > .reveal-line {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+}
+
+.preview-surface {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 12px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    background: var(--surface-warm);
+    overflow: hidden;
+}
+
+.preview-panel:not(.is-active) .preview-surface {
+    min-height: 140px;
+}
+
+.workspace.previews-aligned > .preview-panel:not(.is-active) {
+    height: var(--preview-card-height);
+}
+
+.workspace.previews-aligned > #art-panel {
+    margin-top: var(--preview-top-offset);
+}
+
+.workspace.previews-aligned .preview-panel:not(.is-active) .preview-surface {
+    min-height: 0;
+}
+
+.workspace.previews-aligned .preview-panel:not(.is-active) #preview,
+.workspace.previews-aligned .preview-panel:not(.is-active) #model-preview {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: contain;
+}
+
+.preview-panel #download-art:not([hidden]) {
+    flex-shrink: 0;
+}
+
+.preview-panel:fullscreen {
+    padding: 20px;
 }
