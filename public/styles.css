@@ -47,7 +47,7 @@ h1 {
 
 #drawing {
     display: block;
-    border: 1px solid #e3e0d8;
+    border: none;
     background-color: #fff;
 }
 
@@ -253,7 +253,7 @@ label[for="art-instructions"] {
     box-sizing: border-box;
     margin: 0;
     padding: 12px;
-    border: 2px solid #24231f;
+    border: none;
     background: #fffdf8;
     font: inherit;
     resize: none;
@@ -422,7 +422,7 @@ label[for="art-instructions"] {
 
 #art-instructions {
     padding: 14px;
-    border: 1px solid #e3e0d8;
+    border: none;
     border-radius: 4px;
     background: #f3f1eb;
     color: #302f2b;
