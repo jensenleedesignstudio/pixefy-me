@@ -377,6 +377,11 @@ label[for="art-instructions"] {
     height: 100%;
     max-width: none;
     overflow: auto;
+    background-color: #fcfbf8;
+}
+
+.workspace > section::backdrop {
+    background-color: #fcfbf8;
 }
 
 .preview-panel:fullscreen #preview {
