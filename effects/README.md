@@ -5,11 +5,15 @@ another about every 1.25 seconds. Large physical pixels and nearest-neighbour
 scaling produce stepped ring edges. A separate low-resolution ink canvas stores
 translucent colour stains permanently as the rings expand.
 
-When generation succeeds, the controller calls `settle()`: moving rings disappear,
-the animation loop stops, and the accumulated pixel colours remain behind the
-result. The ready message hides after 1.8 seconds without clearing the background.
-A new generation disposes that canvas and starts again from uncoloured paper.
-Failures clear the current effect. Overlapping requests settle only after the last
+When generation succeeds, `settle()` begins a 1.6-second exit: no new droplets
+spawn, existing rings slow and thin, then dissolve into small drifting pixels.
+Their dust fades out before the animation loop stops, leaving the absorbed colours
+behind the result. Each ripple also dissolves naturally near the end of its life. The ready message hides after 1.8 seconds without clearing the background.
+Later generations reuse the same ink canvas instead of clearing it. An in-memory
+counter increments for every art or 3D request; subsequent requests shift the
+palette's hues and layer new droplets over the accumulated colours. Only the
+first run starts from uncoloured paper. Refreshing the page resets this session.
+Later failures preserve existing colours; a failed first attempt clears its effect. Overlapping requests settle only after the last
 request completes. Hiding the tab pauses the renderer rather than losing its ink.
 Resizing preserves the finished colours.
 
@@ -21,10 +25,12 @@ of them.
 
 ## Appearance settings
 
-- `effects/src/shader-background.jsx`: `pixelSize` (currently 4 CSS pixels), palette,
-  droplet positions, interval, radius, and absorption strength.
+- `effects/src/shader-background.jsx`: `pixelSize`, palette, droplet positions,
+  interval, radius, absorption strength, and `settleDuration` (currently 1600ms).
 - `public/styles.css`: static grain in `#generation-background::after`.
-- `public/generation-effects.js`: request lifecycle and completed-background state.
+- `public/generation-effects.js`: request lifecycle, `generationCount`, and retained
+  completed-background state. The counter is also exposed as `data-generation`
+  on the background host for inspection.
 
 ## Build and test
 
@@ -39,3 +45,6 @@ Commit the rebuilt `public/shader-background.js` with source changes; Flask and
 Vercel serve the checked-in bundle without needing a Node build step. Use the
 “test generation effect (no credits)” button to preview the full loading and
 completed-background behaviour without calling AI providers.
+
+The renderer targets 60fps for smoother expansion. Reduced-motion changes bypass
+the exit animation immediately and keep the accumulated colours static.

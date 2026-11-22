@@ -6,7 +6,7 @@ test('generation background handles completion, overlap, failure, and reduced mo
     const original = { document: globalThis.document, window: globalThis.window,
         setTimeout: globalThis.setTimeout, clearTimeout: globalThis.clearTimeout };
     const classes = new Set();
-    const host = { classList: { add: x => classes.add(x), remove: x => classes.delete(x) },
+    const host = { dataset: {}, classList: { add: x => classes.add(x), remove: x => classes.delete(x) },
         querySelector: () => ({}), addEventListener() {} };
     const status = { hidden: true, textContent: '' };
     const timers = new Map(); let timerId = 0;
@@ -21,7 +21,9 @@ test('generation background handles completion, overlap, failure, and reduced mo
         const art = beginGenerationEffect('art');
         assert.equal(status.textContent, 'Creating your character…');
         assert(classes.has('is-visible'));
+        assert.equal(host.dataset.generation, '1');
         const model = beginGenerationEffect('model');
+        assert.equal(host.dataset.generation, '2');
         assert.equal(status.textContent, 'Creating artwork and 3D model…');
         art(true);
         assert.equal(status.textContent, 'Building your 3D model…');
@@ -37,7 +39,7 @@ test('generation background handles completion, overlap, failure, and reduced mo
         const failed = beginGenerationEffect('art');
         failed(false);
         assert.equal(status.hidden, true);
-        assert(!classes.has('is-visible'));
+        assert(classes.has('is-visible')); // Later failures preserve the accumulated background.
         const first = beginGenerationEffect('model');
         const second = beginGenerationEffect('art');
         first(false);
