@@ -795,3 +795,53 @@ label[for="art-instructions"] {
 .preview-panel:fullscreen {
     padding: 20px;
 }
+
+/* ShaderGradient is decorative and never enters the exported drawing. */
+#generation-background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 25% 30%, #d7b995, transparent 65%),
+        radial-gradient(ellipse at 80% 70%, #b8b5a2, #fdf5ec 80%);
+    transition: opacity 350ms ease;
+}
+
+#generation-background.is-visible {
+    opacity: 0.48;
+}
+
+.shader-host {
+    position: absolute;
+    inset: 0;
+}
+
+body > h1,
+.workspace {
+    position: relative;
+    z-index: 1;
+}
+
+#generation-status {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 10;
+    max-width: calc(100vw - 48px);
+    box-sizing: border-box;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--surface-warm);
+    color: #5b4632;
+    font-size: 13px;
+    box-shadow: 0 3px 20px rgb(91 70 50 / 8%);
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #generation-background {
+        transition: none;
+    }
+}

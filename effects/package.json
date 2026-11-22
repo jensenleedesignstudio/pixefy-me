@@ -1,0 +1,20 @@
+{
+  "name": "pixefy-me-effects",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/shader-background.jsx --bundle --minify --format=esm --define:process.env.NODE_ENV=\"\\\"production\\\"\" --outfile=../public/shader-background.js",
+    "test": "node --test tests/generation-effects.test.mjs"
+  },
+  "dependencies": {
+    "@shadergradient/react": "2.4.20",
+    "@react-three/fiber": "8.17.10",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "three": "0.169.0",
+    "three-stdlib": "2.30.1",
+    "camera-controls": "2.9.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.0"
+  }
+}

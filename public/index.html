@@ -18,6 +18,10 @@
     </head>
 
     <body>
+        <div id="generation-background" aria-hidden="true">
+            <div class="shader-host"></div>
+        </div>
+        <div id="generation-status" role="status" aria-live="polite" hidden></div>
         <h1>pixefy me</h1>
 
         <main class = "workspace">
@@ -190,7 +194,9 @@
         </section>
         </main>
 
-        <script> 
+        <script type="module">
+            import { beginGenerationEffect } from "./generation-effects.js";
+
             let generatedImage = null;
 
             const panels = document.querySelectorAll(".workspace > section");
@@ -504,11 +510,20 @@
             const generateLabel = generateButton.querySelector(".button-label");
 
             generateButton.addEventListener("click", function () {
+                const finishEffect = beginGenerationEffect("art");
                 generateButton.disabled = true; 
                 generateLabel.textContent = "Generating...";
                 generateButton.setAttribute("aria-busy", "true");
 
                 canvas.toBlob(function (sketch) {
+                    if (!sketch) {
+                        finishEffect(false);
+                        generateButton.disabled = false;
+                        generateLabel.textContent = "Generate art";
+                        generateButton.removeAttribute("aria-busy");
+                        alert("Could not export the drawing. Please try again.");
+                        return;
+                    }
                     const form = new FormData();
                     form.append("sketch", sketch, "sketch.png");
                     const instructions = document.getElementById("art-instructions").value;
@@ -532,6 +547,7 @@
                             const downloadLink = document.getElementById("download-art");
                             downloadLink.href = preview.src;
                             downloadLink.hidden = false;
+                            finishEffect(true);
                         })
                         .catch(error => {
                             alert(error.message);
@@ -540,6 +556,7 @@
                             generateButton.disabled = false; 
                             generateLabel.textContent = "Generate art";
                             generateButton.removeAttribute("aria-busy");
+                            finishEffect(false);
                         });
                 }, "image/png");
             });
@@ -549,6 +566,7 @@
 
             generate3dButton.addEventListener("click", function () {
                 if (!generatedImage) return;
+                const finishEffect = beginGenerationEffect("model");
 
                 generate3dButton.disabled = true;
                 generate3dLabel.textContent = "Generating 3D...";
@@ -571,6 +589,7 @@
                     .then(model => {
                         const viewer = document.getElementById("model-preview");
                         viewer.src = URL.createObjectURL(model);
+                        finishEffect(true);
                     })
                     .catch(error => {
                         alert(error.message);
@@ -579,6 +598,7 @@
                         generate3dButton.disabled = false;
                         generate3dLabel.textContent = "Generate 3D";
                         generate3dButton.removeAttribute("aria-busy");
+                        finishEffect(false);
                     });
                             });
 
