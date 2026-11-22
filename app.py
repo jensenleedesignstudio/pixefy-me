@@ -1,7 +1,7 @@
 from flask import Flask, request, send_file
 from io import BytesIO
 from dotenv import load_dotenv
-from openai import OpenAI, RateLimitError
+from openai import OpenAI, RateLimitError, BadRequestError
 from base64 import b64decode
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -71,6 +71,13 @@ def generate():
 
     except RateLimitError:
         return "image generation is unavailable. check your API credits and limits.", 429
+
+    except BadRequestError:
+        return (
+            "The image request could not be processed. "
+            "Please review your image and instructions.",
+            400,
+        )
 
     image_bytes = b64decode(result.data[0].b64_json)
     return send_file(BytesIO(image_bytes), mimetype = "image/png")
