@@ -19,7 +19,7 @@ export function mountShaderBackground(host) {
                 color1="#fdf5ec" color2="#d7b995" color3="#b8b5a2"
                 cDistance={3.6} cPolarAngle={90} cAzimuthAngle={180}
                 uSpeed={0.2} uStrength={2.5} uFrequency={4}
-                brightness={1.1} lightType="3d" grain="off" />
+                brightness={1.1} lightType="3d" grain="on grainBlending = {0.30}" />
         </ShaderGradientCanvas>
         </ShaderBoundary>
     );
