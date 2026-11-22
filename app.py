@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, Response, stream_with_context
 from io import BytesIO
 from dotenv import load_dotenv
 from openai import OpenAI, RateLimitError
@@ -7,11 +7,21 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from gradio_client import Client, handle_file
 import os
+import json
 
 app = Flask(__name__, static_folder = "public", static_url_path = "/static")
 
 load_dotenv()
+
 client = OpenAI()
+
+def format_stream_event(event_type, **details):
+    payload = {
+        "type": event_type,
+        **details,
+    }
+
+    return f"data: {json.dumps(payload)}\n\n"
 
 @app.route("/")
 def home ():
@@ -132,5 +142,27 @@ def generate_3d():
             download_name="character.glb",
         )
 
+@app.route("/stream-test")
+def stream_test():
+    @stream_with_context
+    def events():
+        yield format_stream_event(
+            "status",
+            message="The stream has started.",
+        )
+
+        yield format_stream_event(
+            "complete",
+            message="The stream has finished.",
+        )
+
+    return Response(
+        events(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
     
 
