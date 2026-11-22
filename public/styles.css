@@ -569,10 +569,22 @@ label[for="art-instructions"] {
 /* A compact, single-row toolbar that retracts toward its three-dot toggle. */
 .canvas-layout > .drawing-toolbar {
     flex-wrap: nowrap;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 4px;
     margin: 0 0 10px;
     align-self: start;
+    justify-self: start;
+    border: none;
+    border-radius: 999px;
+    background: var(--surface-warm);
+    transition: width 280ms ease;
+}
+
+.canvas-layout > .drawing-toolbar.is-collapsed {
+    width: 38px;
 }
 
 #toolbar-toggle {
@@ -588,7 +600,7 @@ label[for="art-instructions"] {
 .toolbar-drawer {
     flex: 1 1 auto;
     min-width: 0;
-    max-width: 720px;
+    max-width: 100%;
     overflow: hidden;
     opacity: 1;
     transform: translateX(0);
@@ -620,6 +632,7 @@ label[for="art-instructions"] {
 }
 
 .toolbar-items .drawing-actions {
+    margin-left: auto;
     padding-left: 6px;
     border-left: none;
 }
@@ -670,7 +683,8 @@ label[for="art-instructions"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .toolbar-drawer {
+    .toolbar-drawer,
+    .canvas-layout > .drawing-toolbar {
         transition: none;
     }
 }
