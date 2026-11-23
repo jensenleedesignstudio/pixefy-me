@@ -21,6 +21,10 @@ export function mountShaderBackground(host, options = {}) {
     let lastFrame, frame, paused = false, settled = false, disposed = false;
     let settling = false, settleElapsed = 0;
     const settleDuration = 1600;
+    const waveInterval = 5000;
+    const waveDuration = 2800;
+    let idleTimer, idleElapsed = 0, lastIdleFrame;
+    let idleMotionEnabled = true;
     const clamp = value => Math.max(0, Math.min(1, value));
     const noise = seed => {
         const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
@@ -30,6 +34,56 @@ export function mountShaderBackground(host, options = {}) {
     function paintInk() {
         context.imageSmoothingEnabled = false;
         context.drawImage(ink, 0, 0, width, height);
+    }
+
+    function scheduleIdleWave(delay = waveInterval) {
+        clearTimeout(idleTimer);
+        if (disposed || paused || !settled || !idleMotionEnabled) return;
+        idleTimer = setTimeout(() => {
+            idleElapsed = 0;
+            lastIdleFrame = undefined;
+            canvas.dataset.phase = 'idle-wave';
+            frame = requestAnimationFrame(drawIdleWave);
+        }, delay);
+    }
+
+    function drawIdleWave(time) {
+        if (disposed || paused || !settled || !idleMotionEnabled) return;
+        const delta = lastIdleFrame === undefined ? 0 : time - lastIdleFrame;
+        if (lastIdleFrame !== undefined && delta < 1000 / 60 - 1) {
+            frame = requestAnimationFrame(drawIdleWave);
+            return;
+        }
+        lastIdleFrame = time;
+        idleElapsed += Math.min(delta, 100);
+        const progress = clamp(idleElapsed / waveDuration);
+        paintInk();
+        if (progress >= 1) {
+            canvas.dataset.phase = 'settled';
+            // Start-to-start spacing stays five seconds, including the moving phase.
+            scheduleIdleWave(waveInterval - waveDuration);
+            return;
+        }
+
+        // Distort a narrow travelling band of the saved ink, never the ink itself.
+        const band = Math.min(220, width * 0.2);
+        const front = -band * 2 + progress * (width + band * 4);
+        const amplitude = 12 * Math.sin(Math.PI * progress);
+        const strip = Math.max(4, pixelSize);
+        const start = Math.max(0, Math.floor((front - band * 2) / strip) * strip);
+        const end = Math.min(width, front + band * 2);
+        for (let x = start; x < end; x += strip) {
+            const distance = (x - front) / band;
+            const offset = Math.sin(distance * Math.PI * 1.5)
+                * Math.exp(-distance * distance) * amplitude;
+            const sourceX = Math.floor(x * ink.width / width);
+            const sourceWidth = Math.min(ink.width - sourceX,
+                Math.max(1, Math.ceil(strip * ink.width / width)));
+            context.drawImage(ink, sourceX, 0, sourceWidth, ink.height,
+                x, Math.round(offset / pixelSize) * pixelSize,
+                Math.min(strip, width - x), height);
+        }
+        frame = requestAnimationFrame(drawIdleWave);
     }
 
     function resize() {
@@ -158,6 +212,7 @@ export function mountShaderBackground(host, options = {}) {
         ripples.length = 0;
         paintInk();
         canvas.dataset.phase = 'settled';
+        scheduleIdleWave();
     }
 
     resize();
@@ -167,16 +222,33 @@ export function mountShaderBackground(host, options = {}) {
 
     function dispose() {
         disposed = true;
+        clearTimeout(idleTimer);
         cancelAnimationFrame(frame);
         observer.disconnect();
         canvas.remove();
         ripples.length = 0;
     }
-    dispose.pause = () => { paused = true; cancelAnimationFrame(frame); };
+    dispose.pause = () => {
+        paused = true;
+        clearTimeout(idleTimer);
+        cancelAnimationFrame(frame);
+        if (settled) { paintInk(); canvas.dataset.phase = 'settled'; }
+    };
     dispose.resume = () => {
-        if (!disposed && !settled && paused) {
-            paused = false; lastFrame = undefined;
-            frame = requestAnimationFrame(draw);
+        if (!disposed && paused) {
+            paused = false;
+            if (settled) scheduleIdleWave();
+            else { lastFrame = undefined; frame = requestAnimationFrame(draw); }
+        }
+    };
+    dispose.setMotion = enabled => {
+        idleMotionEnabled = enabled;
+        clearTimeout(idleTimer);
+        if (settled) {
+            cancelAnimationFrame(frame);
+            paintInk();
+            canvas.dataset.phase = 'settled';
+            if (enabled) scheduleIdleWave();
         }
     };
     dispose.settle = (immediate = false) => {
@@ -197,6 +269,7 @@ export function mountShaderBackground(host, options = {}) {
     };
     dispose.restart = (nextGeneration, animate = true) => {
         if (disposed) return;
+        clearTimeout(idleTimer);
         cancelAnimationFrame(frame);
         dispose.setGeneration(nextGeneration);
         // Keep the ink canvas intact: this is the saved background from earlier runs.

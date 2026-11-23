@@ -106,6 +106,7 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 motion.addEventListener('change', () => {
+    dispose?.setMotion?.(!motion.matches);
     if (motion.matches) {
         if (settled) dispose?.settle?.(true);
         else dispose?.pause?.();
