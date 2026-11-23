@@ -58,28 +58,27 @@
                 </div>
                 <div class = "size-control">
                     <input type = "range" id = "brush-size" min = "1" max = "40" value = "6" aria-label = "Brush size" title = "Brush size">
-                    <output id = "brush-size-value" for = "brush-size">6</output>
+                    <output id = "brush-size-value" for = "brush-size">6 px</output>
                 </div>
+                <button class="icon-button" id="pencil" type="button" aria-label="Pencil" title="Pencil" aria-pressed="true">
+                    <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                </button>
                 <button class = "icon-button" id = "eraser" type = "button" aria-label = "eraser" title = "eraser" aria-pressed = "false">
                     <span class = "material-symbols-outlined" aria-hidden = "true">ink_eraser</span>
                 </button>
             </div>
-            <div class = "tool-group" role = "group" aria-label = "canvas actions">
-                <button class = "icon-button" id = "undo" type = "button" aria-label = "undo" title = "undo">
+            <div class = "tool-group" role = "group" aria-label = "Canvas history">
+                <button class = "icon-button" id = "undo" type = "button" aria-label = "undo" title = "undo" disabled>
                     <span class = "material-symbols-outlined" aria-hidden = "true">undo</span>
                 </button>
+                <button class="icon-button" id="redo" type="button" aria-label="Redo" title="Redo" disabled>
+                    <span class="material-symbols-outlined" aria-hidden="true">redo</span>
+                </button>
+            </div>
+            <div class="drawing-actions" role="group" aria-label="Canvas actions">
                 <button class = "icon-button" id = "clear" type = "button" aria-label = "clear canvas" title = "clear canvas">
                     <span class = "material-symbols-outlined" aria-hidden = "true">delete</span>
                 </button>
-                <button class = "icon-button" id = "upload-button" type = "button" aria-label = "upload image" title = "upload image">
-                    <span class = "material-symbols-outlined" aria-hidden = "true">upload</span>
-                </button>
-                <button class = "icon-button" id = "save-sketch" type = "button" aria-label = "save sketch" title = "save sketch">
-                    <span class = "material-symbols-outlined" aria-hidden = "true">download</span>
-                </button>
-            </div>
-
-<div class = "drawing-actions" role = "group" aria-label = "Generation and fullscreen actions">
                 <button id = "generate" type = "button" title="Generate artwork">
                     <span class = "material-symbols-outlined" aria-hidden = "true">image</span>
                     <span class = "button-label">generate art</span>
@@ -99,6 +98,12 @@
                     open_in_full
                 </span>
             </button>
+                <button class = "icon-button" id = "upload-button" type = "button" aria-label = "upload image" title = "upload image">
+                    <span class = "material-symbols-outlined" aria-hidden = "true">upload</span>
+                </button>
+                <button class = "icon-button" id = "save-sketch" type = "button" aria-label = "save sketch" title = "save sketch">
+                    <span class = "material-symbols-outlined" aria-hidden = "true">download</span>
+                </button>
             </div>
 
                     </div>
@@ -443,12 +448,17 @@
 
 
             sizePicker.addEventListener("input", function () {
-                sizeValue.value = sizePicker.value;
+                sizeValue.value = sizePicker.value + " px";
             });
 
-            eraserToggle.addEventListener("click", function () {
-                const isPressed = eraserToggle.getAttribute("aria-pressed") === "true";
-                eraserToggle.setAttribute("aria-pressed", String(!isPressed));
+            const pencil = document.getElementById("pencil");
+            function selectEraser(active) {
+                eraserToggle.setAttribute("aria-pressed", String(active));
+                pencil.setAttribute("aria-pressed", String(!active));
+            }
+            pencil.addEventListener("click", () => selectEraser(false));
+            eraserToggle.addEventListener("click", () => {
+                selectEraser(eraserToggle.getAttribute("aria-pressed") !== "true");
             });
 
             function getCanvasPoint(event) {
@@ -468,9 +478,7 @@
 
             canvas.addEventListener("pointerdown", function (event) {
 
-                undoHistory.push(
-                    ctx.getImageData(0, 0, canvas.width, canvas.height)
-                );
+                recordEdit();
 
                 drawing = true
                 canvas.setPointerCapture(event.pointerId);
@@ -503,21 +511,39 @@
             const clearButton = document.getElementById("clear");
 
             clearButton.addEventListener("click", function () {
-                undoHistory.push(
-                    ctx.getImageData(0, 0, canvas.width, canvas.height)
-                );
+                recordEdit();
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             });
 
             const undoButton = document.getElementById("undo");
+            const redoButton = document.getElementById("redo");
+            const redoHistory = [];
 
-            undoButton.addEventListener("click", function () {
-                if (undoHistory.length === 0) return;
+            function snapshot() {
+                return ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
 
-                const previousDrawing = undoHistory.pop();
-                ctx.putImageData(previousDrawing, 0, 0);
-            });
+            function updateHistoryButtons() {
+                undoButton.disabled = undoHistory.length === 0;
+                redoButton.disabled = redoHistory.length === 0;
+            }
+
+            function recordEdit() {
+                undoHistory.push(snapshot());
+                redoHistory.length = 0;
+                updateHistoryButtons();
+            }
+
+            function restoreEdit(from, to) {
+                if (!from.length) return;
+                to.push(snapshot());
+                ctx.putImageData(from.pop(), 0, 0);
+                updateHistoryButtons();
+            }
+
+            undoButton.addEventListener("click", () => restoreEdit(undoHistory, redoHistory));
+            redoButton.addEventListener("click", () => restoreEdit(redoHistory, undoHistory));
 
             const saveButton = document.getElementById("save-sketch");
 
@@ -638,9 +664,7 @@
                 try {
                     const photo = await createImageBitmap(file);
 
-                    undoHistory.push(
-                        ctx.getImageData(0, 0, canvas.width, canvas.height)
-                    );
+                    recordEdit();
 
                     const scale = Math.min(
                         canvas.width / photo.width,
