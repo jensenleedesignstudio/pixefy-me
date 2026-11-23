@@ -12,8 +12,8 @@
             href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block"
         >
 
-        <script type="module"
-            src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.4.0/model-viewer.min.js">
+        <script type = "module"
+            src = "https://ajax.googleapis.com/ajax/libs/model-viewer/4.4.0/model-viewer.min.js">
         </script>
     </head>
 
@@ -565,6 +565,7 @@
                             generate3dButton.disabled = false;
                             const preview = document.getElementById("preview");
                             preview.src = URL.createObjectURL(image);
+                            setActivePanel("art");
 
                             const downloadLink = document.getElementById("download-art");
                             downloadLink.href = preview.src;
@@ -588,6 +589,8 @@
 
             generate3dButton.addEventListener("click", function () {
                 if (!generatedImage) return;
+                setActivePanel("model");
+
                 const finishEffect = beginGenerationEffect("model");
 
                 generate3dButton.disabled = true;
@@ -659,6 +662,20 @@
                 }
 
                 photoUpload.value = "";
+            });
+
+            document.addEventListener("click", function (event) {
+                const button = event.target.closest("button");
+
+                if (
+                    !button ||
+                    button.classList.contains("thumbnail-select") ||
+                    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                ) return;
+
+                button.classList.remove("button-bounce");
+                void button.offsetWidth;
+                button.classList.add("button-bounce");
             });
         
         </script>
