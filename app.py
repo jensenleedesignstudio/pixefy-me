@@ -30,42 +30,57 @@ def generate():
     try: 
         result = client.images.edit(
             model = "gpt-image-2.6-sunburst",
+            complexity = "medium",
             image = ("sketch.png", sketch.read(), "image/png"),
 
-            prompt=(
-                "transform the supplied sketch into a complete, three-dimensional cartoon character. "
-                "infer what the drawing represents from its shapes, facial features, pose, "
-                "and any written character instructions. "
-                "build directly from the sketch rather and do not replace it with a generic character. "
-                "unless stated otherise by the user instrctions"
+            prompt = f"""
+                turn the supplied sketch or photo into one complete cartoon character.
 
-                "preserve the original silhouette, proportions, expression, pose, asymmetry, "
-                "distinctive markings, colours, and accessories wherever they are shown. "
-                "treat unusual shapes and proportions as intentional design choices. "
+                if the canvas is empty, create a character called nothing. an empty canvas
+                has only a background or transparency. even one visible dot, line, or shape
+                counts as a drawing. for nothing, draw a simple black stick man with a solid
+                round head, a thin line for the body, two line arms, and two line legs. centre
+                him on a plain light background. leave his face blank and his name off the
+                image. for an empty canvas, this rule takes priority over all instructions below.
 
-                "interpret rough lines as guides to the intended forms. "
-                "connect disconnected shapes, resolve overlapping sketch lines, and fill small gaps "
-                "to create a coherent character while retaining the original design. "
-                "invent only the missing details needed to complete it. "
-                "do not add limbs, ears, tails, clothing, or accessories unless the sketch "
-                "or the user's instructions suggest them. "
+                for a non-empty canvas, build directly from what the person drew. start with
+                the outer silhouette, then follow the proportions, pose, expression, colours,
+                markings, and placement of each feature. treat unusual shapes and asymmetry
+                as deliberate. if one ear is oversized or the eyes sit low on the body,
+                carry that choice into the finished character.
 
-                "render the result as a softly shaded 3D figurine with solid, rounded forms "
-                "and clear depth. Translate drawn outlines into actual edges and volumes "
-                "rather than black lines painted onto a flat surface. "
-                "use the sketch's colours where provided; otherwise choose a restrained, "
-                "harmonious palette appropriate to the character. "
+                if several distinctive features clearly point to a familiar animal, object,
+                or existing character, use that recognition to work out missing details.
+                if a matching reference image is supplied, use it for the same purpose.
+                if the subject is ambiguous, let the drawing itself define the character.
+                follow unfinished curves, bridge small gaps where the lines clearly continue,
+                and preserve openings that look intentional.
 
-                "show one complete character in a three-quarter view, keeping its pose "
-                "as close to the reference as possible. "
-                "keep visible limbs and accessories distinguishable. "
-                "centre the entire character with space around it against a plain light background. "
-                "Use soft, even lighting, without scenery, text, or additional characters. "
+                make the character feel finished through the shapes already present. give
+                a drawn flipper thickness, a folded sleeve a crease, or a raised feature a
+                soft shadow where it meets the body. use rounded edges, subtle highlights,
+                and gentle changes in colour to show depth. add limbs, facial features,
+                clothing, markings, or accessories only when the drawing or the user's
+                instructions give a clear reason for them. a simple design can stay simple.
 
-                "apply the user's instructions to the requested features. "
-                "preserve the rest of the sketch wherever those instructions do not request a change. "
-                f"\nAdditional character instructions from the user: {instructions}"
-            ),
+                render the result as a softly shaded 3d cartoon figurine. 
+                light the character with a large, soft light from the upper left. let painted
+                markings follow the curve of the body. give raised features a soft shadow
+                where they meet the surface. use broad highlights on matte surfaces and
+                small, sharper highlights on smooth details already present in the sketch.
+                preserve the drawn colours where provided and choose a restrained palette for 
+                uncoloured areas. use a gentle three-quarter view if it keeps the silhouette and 
+                pose easy to recognise. otherwise, keep the original angle and show volume through 
+                lighting. show the entire character against a plain light background with a little 
+                space on every side.
+
+                apply the user's instructions to the specific features they mention. use the
+                original drawing as the guide for everything else.
+
+                additional character instructions from the user:
+                {instructions.strip() or "(none)"}
+                """,
+
             output_format = "png",
     )
 
