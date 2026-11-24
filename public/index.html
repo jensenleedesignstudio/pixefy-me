@@ -9,6 +9,7 @@
 
         <link rel="stylesheet" href="./vendor/liquid-glass-0.3.0/liquid-glass.css">
         <link rel = "stylesheet" href = "styles.css">
+        <link rel="stylesheet" href="./model-reveal.css">
         <link rel = "stylesheet"
             href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block"
         >
@@ -197,6 +198,7 @@
                 <model-viewer
                 id = "model-preview"
                 src = "kawaiipenguin.glb"
+                poster = "kawaiipenguin2.png"
                 alt = "3d model of your character"
                 camera-controls
                 auto-rotate
@@ -215,6 +217,7 @@
 
         <script type="module">
             import { beginGenerationEffect } from "./generation-effects.js";
+            import { beginModelRequest, cancelModelReveal } from "./model-reveal.js";
 
             // Temporary visual test: uses the same effects, but never sends a request.
             const testEffectButton = document.getElementById("test-generation-effect");
@@ -291,6 +294,7 @@
             function setActivePanel(view) {
                 const selectedPanel = Array.from(panels).find(panel => panel.dataset.view === view);
                 if (!selectedPanel || selectedPanel.classList.contains("is-active")) return;
+                if (view !== "model") cancelModelReveal();
 
                 // Entering the workspace ends its one-time intro, even on an early click.
                 finishEntranceAnimations();
@@ -307,6 +311,12 @@
                 updatePanelButtons();
                 syncPreviewSizes();
 
+                // An old fullscreen panel would cover the result even after the grid switches.
+                const fullscreenPanel = document.fullscreenElement;
+                if (fullscreenPanel?.matches(".workspace > section") && fullscreenPanel !== selectedPanel) {
+                    document.exitFullscreen().catch(error => console.warn("Could not leave fullscreen.", error));
+                    return;
+                }
                 if (reducedMotion.matches || !selectedPanel.animate) return;
                 const last = Array.from(panels, panel => panel.getBoundingClientRect());
 
@@ -597,7 +607,7 @@
                         })
                         .then(image => {
                             generatedImage = image;
-                            generate3dButton.disabled = false;
+                            generate3dButton.disabled = modelRequestPending;
                             const preview = document.getElementById("preview");
                             preview.src = URL.createObjectURL(image);
                             setActivePanel("art");
@@ -621,11 +631,13 @@
 
             const generate3dButton = document.getElementById("generate-3d");
             const generate3dLabel = generate3dButton.querySelector(".button-label");
+            let modelRequestPending = false;
 
             generate3dButton.addEventListener("click", function () {
-                if (!generatedImage) return;
+                if (!generatedImage || modelRequestPending) return;
+                modelRequestPending = true;
                 setActivePanel("model");
-
+                const reveal = beginModelRequest(document.getElementById("preview").src);
                 const finishEffect = beginGenerationEffect("model");
 
                 generate3dButton.disabled = true;
@@ -647,20 +659,21 @@
                         return response.blob();
                     })
                     .then(model => {
-                        const viewer = document.getElementById("model-preview");
-                        viewer.src = URL.createObjectURL(model);
+                        reveal.show(model);
                         finishEffect(true);
                     })
                     .catch(error => {
+                        reveal.fail();
                         alert(error.message);
                     })
                     .finally(() => {
+                        modelRequestPending = false;
                         generate3dButton.disabled = false;
                         generate3dLabel.textContent = "Generate 3D";
                         generate3dButton.removeAttribute("aria-busy");
                         finishEffect(false);
                     });
-                            });
+            });
 
                     uploadButton.addEventListener("click", function () {
                 photoUpload.click();

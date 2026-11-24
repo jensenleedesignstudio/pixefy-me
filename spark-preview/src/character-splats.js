@@ -4,13 +4,18 @@ import { MeshSurfaceSampler } from "three/addons/math/MeshSurfaceSampler.js";
 import { SplatMesh } from "@sparkjsdev/spark";
 
 // Optional adapter for Pixefy's static, textured Stable Fast 3D meshes.
-export async function sampleCharacter(url, count) {
-  const { scene } = await new GLTFLoader().loadAsync(url);
+export async function sampleCharacter(source, count, signal) {
+  signal?.throwIfAborted();
+  const loader = new GLTFLoader();
+  const { scene } = source instanceof Blob
+    ? await loader.parseAsync(await source.arrayBuffer(), "")
+    : await loader.loadAsync(source);
   scene.updateMatrixWorld(true);
   const parts = [];
   const textures = new Set();
   let result;
   try {
+    signal?.throwIfAborted();
     scene.traverseVisible(part => {
       if (!part.isMesh || part.isSkinnedMesh || Array.isArray(part.material)) return;
       const geometry = part.geometry.clone().applyMatrix4(part.matrixWorld);
@@ -63,7 +68,10 @@ export async function sampleCharacter(url, count) {
               rotation.setFromUnitVectors(z, normal.normalize());
               packed.pushSplat(pos, size, rotation, alpha, rgb.convertLinearToSRGB());
             }
-            if (i % 4096 === 4095) await new Promise(resolve => setTimeout(resolve, 0));
+            if (i % 4096 === 4095) {
+              await new Promise(resolve => setTimeout(resolve, 0));
+              signal?.throwIfAborted();
+            }
           }
         }
       },

@@ -1,0 +1,2 @@
+# Review the editable Spark sources instead of the bundled shaders and WebAssembly.
+public/inline-dust.js -diff linguist-generated=true
