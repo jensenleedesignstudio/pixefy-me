@@ -42,9 +42,7 @@ npm test
 ```
 
 Commit the rebuilt `public/shader-background.js` with source changes; Flask and
-Vercel serve the checked-in bundle without needing a Node build step. Use the
-“test generation effect (no credits)” button to preview the full loading and
-completed-background behaviour without calling AI providers.
+Vercel serve the checked-in bundle without needing a Node build step.
 
 The renderer targets 60fps for smoother expansion. Reduced-motion changes bypass
 the exit animation immediately and keep the accumulated colours static.

@@ -839,32 +839,6 @@ body > h1,
     }
 }
 
-/* Temporary visual test control, separate from real generation actions. */
-#test-generation-effect {
-    position: relative;
-    z-index: 1;
-    margin: 20px 0 0 20px;
-    padding: 4px 0;
-    border: none;
-    background: transparent;
-    color: #77746d;
-    font: inherit;
-    font-size: 12px;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
-}
-
-#test-generation-effect:disabled {
-    opacity: 0.6;
-    cursor: wait;
-}
-
-#test-generation-effect:focus-visible {
-    outline: 2px solid #5b4632;
-    outline-offset: 3px;
-}
-
 .shader-host canvas {
     image-rendering: pixelated;
 }

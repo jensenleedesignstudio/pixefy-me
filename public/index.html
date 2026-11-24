@@ -210,31 +210,9 @@
         </section>
         </main>
 
-        <button id="test-generation-effect" type="button"
-            title="Preview loading and success animations without making API calls">
-            test generation effect (no credits)
-        </button>
-
         <script type="module">
             import { beginGenerationEffect } from "./generation-effects.js";
             import { beginModelRequest, cancelModelReveal } from "./model-reveal.js";
-
-            // Temporary visual test: uses the same effects, but never sends a request.
-            const testEffectButton = document.getElementById("test-generation-effect");
-            testEffectButton.addEventListener("click", function () {
-                testEffectButton.disabled = true;
-                testEffectButton.textContent = "testing generation effect…";
-                testEffectButton.setAttribute("aria-busy", "true");
-                const finishArt = beginGenerationEffect("art");
-                const finishModel = beginGenerationEffect("model");
-                setTimeout(() => finishArt(true), 3000);
-                setTimeout(function () {
-                    finishModel(true);
-                    testEffectButton.disabled = false;
-                    testEffectButton.textContent = "test generation effect (no credits)";
-                    testEffectButton.removeAttribute("aria-busy");
-                }, 6000);
-            });
 
             let generatedImage = null;
 
