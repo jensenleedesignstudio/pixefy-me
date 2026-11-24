@@ -8,6 +8,30 @@
     --button-walnut-hover: #513b29;
     --button-olive: #626449;
     --button-cream: #fff9ee;
+
+    /* Warm glass shared by the toolbar, instruction field and preview surfaces. */
+    --lg-tint: 249 235 217;
+    --lg-opacity: 0.58;
+    --lg-blur: 7px;
+    --lg-saturate: 108%;
+    --lg-radius: 15px;
+    --lg-edge-red: rgb(255 248 233 / 35%);
+    --lg-edge-cyan: rgb(255 255 255 / 30%);
+    --lg-shadow: 0 3px 12px rgb(82 61 42 / 5%), inset 0 0 0 1px rgb(98 73 48 / 13%);
+    --lg-filter: opacity(1); /* Plain frost until the shared SVG filter is ready. */
+    --tool-highlight: rgb(255 253 247 / 76%);
+    --tool-selected: #e2d4bf;
+    --tool-rim: inset 0 0 0 1px rgb(102 76 54 / 15%);
+    --tool-size: 26px;
+}
+
+.workspace .liquid-glass {
+    border: 0;
+}
+
+.liquid-glass-filter-root {
+    position: absolute;
+    pointer-events: none;
 }
 
 body {
@@ -142,8 +166,10 @@ h1 {
     padding: 6px 10px;
     font: inherit;
     cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
     border-radius: 6px;
-    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+    transition: background-color 140ms ease, box-shadow 140ms ease, color 140ms ease;
     border: none;
     background: transparent;
     box-shadow: none;
@@ -153,27 +179,21 @@ h1 {
     width: 32px;
     padding: 0;
     flex: 0 0 32px;
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--button-ink);
 }
-.drawing-toolbar button:hover:not(:disabled),
-.drawing-actions button:hover:not(:disabled) {
-    background: transparent;
-    box-shadow: none;
-    color: #302f2b;
+
+/* The controls share the pill. Only the tool being used picks up its own lens. */
+@media (hover: hover) {
+    .drawing-toolbar button:enabled:hover,
+    .panel-header .panel-select:hover {
+        background-color: var(--tool-highlight);
+        box-shadow: var(--tool-rim);
+        color: var(--button-walnut-hover);
+    }
 }
-#eraser[aria-pressed="true"] {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--button-olive);
-}
-#eraser[aria-pressed="true"]:hover:not(:disabled) {
-    background: transparent;
-    box-shadow: none;
-    color: #302f2b;
+
+.drawing-toolbar button:enabled:is(:hover, :focus-visible, [aria-pressed="true"]) {
+    -webkit-backdrop-filter: var(--lg-filter);
+    backdrop-filter: var(--lg-filter);
 }
 
 .drawing-toolbar button:disabled,
@@ -196,18 +216,6 @@ h1 {
 #download-art {
     color: #22221e;
     text-underline-offset: 3px;
-}
-#generate {
-    font-weight: bold;
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--button-ink);
-}
-#generate:hover:not(:disabled) {
-    background: transparent;
-    box-shadow: none;
-    color: #302f2b;
 }
 
 .workspace h2 {
@@ -237,6 +245,7 @@ h1 {
     grid-area: canvas;
     align-self: start;
     min-width: 0;
+    padding: 6px;
 }
 
 .canvas-layout > .drawing-toolbar {
@@ -273,10 +282,13 @@ label[for="art-instructions"] {
     width: 100%;
     box-sizing: border-box;
     margin: 0;
-    padding: 12px;
+    padding: 14px;
     border: none;
-    background: var(--surface-warm);
+    border-radius: inherit;
+    background: transparent;
+    color: #302f2b;
     font: inherit;
+    line-height: 1.6;
     resize: none;
 }
 
@@ -332,6 +344,15 @@ label[for="art-instructions"] {
         grid-column: 1;
         grid-row: auto;
     }
+    .drawing-panel:not(:fullscreen) {
+        padding: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 32px 16px;
+    }
 }
 
 #drawing {
@@ -371,23 +392,17 @@ label[for="art-instructions"] {
     margin: 0;
 }
 .panel-select {
+    --lg-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
+    width: max(32px, var(--tool-size));
+    height: max(32px, var(--tool-size));
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 50%;
     border: none;
-    background: transparent;
-    box-shadow: none;
     color: var(--button-ink);
-}
-.panel-select:hover {
-    background: transparent;
-    box-shadow: none;
-    color: #302f2b;
 }
 
 .panel-select:focus-visible {
@@ -419,24 +434,6 @@ label[for="art-instructions"] {
 .preview-panel:fullscreen #model-preview {
     height: calc(100dvh - 110px);
 }
-.drawing-toolbar .icon-button {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--button-ink);
-}
-.drawing-toolbar .icon-button:hover:not(:disabled) {
-    background: transparent;
-    box-shadow: none;
-    color: #302f2b;
-}
-.drawing-toolbar .icon-button[aria-pressed="true"] {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--button-olive);
-}
-
 .drawing-toolbar .icon-button:focus-visible {
     outline: 2px solid var(--button-walnut);
     outline-offset: 3px;
@@ -447,42 +444,13 @@ label[for="art-instructions"] {
     color: #77746d;
 }
 
-#art-instructions {
-    padding: 14px;
-    border: none;
-    border-radius: 4px;
-    background: var(--surface-warm);
-    color: #302f2b;
-    font: inherit;
-    line-height: 1.6;
-}
-
 #art-instructions::placeholder {
-    color: #88857d;
+    color: #74695d;
 }
 
 #art-instructions:focus-visible {
-    outline: 2px solid #77746d;
-    outline-offset: 2px;
-}
-.panel-select {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--button-ink);
-}
-.panel-select:hover {
-    background: transparent;
-    box-shadow: none;
-    color: #302f2b;
-}
-
-.panel-select:focus-visible {
     outline: 2px solid var(--button-walnut);
-    outline-offset: 3px;
+    outline-offset: -3px;
 }
 
 .panel-select .material-symbols-outlined {
@@ -500,28 +468,6 @@ label[for="art-instructions"] {
     border-radius: 6px;
     font-size: 12px;
     font-weight: 400;
-}
-#generate {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--button-ink);
-}
-#generate:hover:not(:disabled) {
-    background: transparent;
-    box-shadow: none;
-    color: #302f2b;
-}
-#generate-3d {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--button-ink);
-}
-#generate-3d:hover:not(:disabled) {
-    background: transparent;
-    box-shadow: none;
-    color: #302f2b;
 }
 
 .drawing-actions button:disabled {
@@ -541,7 +487,7 @@ label[for="art-instructions"] {
     height: 100%;
     padding: 0;
     border: 0;
-    border-radius: 4px;
+    border-radius: var(--lg-radius);
     background: transparent;
     cursor: pointer;
 }
@@ -567,6 +513,7 @@ label[for="art-instructions"] {
 
 /* A compact, single-row toolbar that retracts toward its three-dot toggle. */
 .canvas-layout > .drawing-toolbar {
+    --lg-radius: 999px;
     flex-wrap: nowrap;
     gap: 4px;
     min-width: 0;
@@ -578,19 +525,19 @@ label[for="art-instructions"] {
     justify-self: start;
     border: none;
     border-radius: 999px;
-    background: var(--surface-warm);
     transition: width 280ms ease;
 }
 
 .canvas-layout > .drawing-toolbar.is-collapsed {
-    width: 38px;
+    width: calc(var(--tool-size) + 12px);
 }
 
 #toolbar-toggle {
-    flex: 0 0 26px;
-    width: 26px;
-    height: 26px;
-    min-height: 26px;
+    flex: 0 0 var(--tool-size);
+    width: var(--tool-size);
+    height: var(--tool-size);
+    min-height: var(--tool-size);
+    border-radius: 50%;
     padding: 0;
     font-size: 20px;
     line-height: 1;
@@ -636,7 +583,9 @@ label[for="art-instructions"] {
 }
 
 .drawing-toolbar .toolbar-items button[aria-pressed="true"] {
-    background: color-mix(in srgb, var(--button-olive) 16%, var(--surface-warm));
+    color: var(--button-walnut-hover);
+    background-color: var(--tool-selected);
+    box-shadow: var(--tool-rim), inset 0 1px 0 rgb(255 255 255 / 60%);
 }
 
 .toolbar-items .drawing-actions {
@@ -646,10 +595,10 @@ label[for="art-instructions"] {
 }
 
 .drawing-toolbar .toolbar-items button {
-    flex: 0 0 26px;
-    width: 26px;
-    height: 26px;
-    min-height: 26px;
+    flex: 0 0 var(--tool-size);
+    width: var(--tool-size);
+    height: var(--tool-size);
+    min-height: var(--tool-size);
     padding: 0;
     border-radius: 50%;
 }
@@ -660,21 +609,25 @@ label[for="art-instructions"] {
 
 .toolbar-items .color-control,
 .toolbar-items .size-control {
-    min-height: 26px;
+    min-height: var(--tool-size);
     gap: 4px;
     font-size: 11px;
 }
 
 .toolbar-items #brush-color {
-    width: 26px;
-    height: 26px;
-    padding: 3px;
+    width: var(--tool-size);
+    height: var(--tool-size);
+    padding: calc((var(--tool-size) - 20px) / 2);
     border-radius: 4px;
 }
 
 .toolbar-items #brush-size {
     width: 52px;
-    height: 26px;
+    height: var(--tool-size);
+}
+
+@media (pointer: coarse) {
+    :root { --tool-size: 44px; }
 }
 
 /* Keep generation labels available to assistive technology in icon-only buttons. */
@@ -768,9 +721,41 @@ label[for="art-instructions"] {
     min-height: 0;
     padding: 12px;
     box-sizing: border-box;
-    border-radius: 4px;
-    background: var(--surface-warm);
     overflow: hidden;
+}
+
+@media (hover: hover) {
+    .workspace > section:not(.is-active):hover :is(.preview-surface, .canvas-surface) {
+        --lg-shadow: 0 4px 14px rgb(82 61 42 / 9%), inset 0 0 0 1px rgb(102 76 54 / 28%);
+    }
+}
+
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    .workspace .liquid-glass,
+    .drawing-toolbar button:enabled:is(:hover, :focus-visible, [aria-pressed="true"]) {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+    .workspace .liquid-glass {
+        background: var(--surface-warm);
+        outline: 1px solid var(--button-edge);
+        outline-offset: -1px;
+    }
+    .workspace .liquid-glass::before,
+    .workspace .liquid-glass::after {
+        display: none;
+    }
+    .workspace .panel-select:focus-visible {
+        outline: 2px solid var(--button-walnut);
+        outline-offset: 2px;
+    }
+}
+
+@media (forced-colors: active) {
+    .drawing-toolbar button[aria-pressed="true"] {
+        outline: 2px solid Highlight;
+        outline-offset: -2px;
+    }
 }
 
 .preview-panel:not(.is-active) .preview-surface {

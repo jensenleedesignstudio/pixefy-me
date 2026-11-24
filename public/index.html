@@ -7,11 +7,19 @@
         <meta name = "viewport" content = "width=device-width, initial-scale=1">
         <title>pixefy me</title>
 
+        <link rel="stylesheet" href="./vendor/liquid-glass-0.3.0/liquid-glass.css">
         <link rel = "stylesheet" href = "styles.css">
         <link rel = "stylesheet"
             href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block"
         >
 
+        <script type="module">
+            import { injectLiquidGlassFilter } from "./vendor/liquid-glass-0.3.0/inject-filter.js";
+
+            // Share one still lens across the controls, even while the ripples move behind them.
+            const lens = injectLiquidGlassFilter({ scale: 8, animate: false });
+            document.documentElement.style.setProperty("--lg-filter", `url("#${lens.id}")`);
+        </script>
         <script type = "module"
             src = "https://ajax.googleapis.com/ajax/libs/model-viewer/4.4.0/model-viewer.min.js">
         </script>
@@ -43,7 +51,7 @@
             hidden>
 
         <div class = "canvas-layout">
-            <div class="drawing-toolbar" role="group" aria-label="Canvas controls">
+            <div class="drawing-toolbar liquid-glass" role="group" aria-label="Canvas controls">
                 <button id="toolbar-toggle" type="button" aria-expanded="true"
                     aria-controls="toolbar-drawer" aria-label="Collapse canvas controls"
                     title="Collapse canvas controls">
@@ -109,16 +117,17 @@
                     </div>
                 </div>
             </div>
-            <div class="canvas-surface reveal-line" style="animation-delay: 0.5s;">
+            <div class="canvas-surface liquid-glass reveal-line" style="animation-delay: 0.5s;">
                 <canvas id = "drawing" width = "600" height = "350">
                 </canvas>
             </div>
 
 
 
-            <div class="instruction-column reveal-line" style="animation-delay: 0.65s;">
+            <div class="instruction-column liquid-glass reveal-line" style="animation-delay: 0.65s;">
                 <textarea
                     id = "art-instructions"
+                    aria-label="Character instructions"
                     rows = "3"
                     placeholder = "make this penguin look a little kawaii..."
                 ></textarea>
@@ -139,7 +148,7 @@
 
             <button 
                 type = "button" 
-                class = "panel-select" 
+                class = "panel-select liquid-glass"
                 data-target = "art"
                 aria-label = "show art preview in main panel"
                 title = "show art preview"
@@ -151,7 +160,7 @@
 
         </div>
 
-            <div class="preview-surface">
+            <div class="preview-surface liquid-glass">
                 <img id = "preview" src = "kawaiipenguin2.png" alt = "kawaiipenguin!" width = "400">
             </div>
 
@@ -172,7 +181,7 @@
 
             <button 
                 type = "button" 
-                class = "panel-select" 
+                class = "panel-select liquid-glass"
                 data-target = "model"
                 aria-label = "show 3d in main panel"
                 title = "show 3d"
@@ -184,7 +193,7 @@
 
         </div>
 
-            <div class="preview-surface">
+            <div class="preview-surface liquid-glass">
                 <model-viewer
                 id = "model-preview"
                 src = "kawaiipenguin.glb"

@@ -1,0 +1,15 @@
+{
+  "name": "pixefy-spark-preview",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/viewer.js --bundle --minify --splitting --format=esm --outdir=../public/spark-build --entry-names=viewer --chunk-names=chunks/[name]-[hash] --legal-comments=eof"
+  },
+  "dependencies": {
+    "@sparkjsdev/spark": "2.4.0",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.0"
+  }
+}

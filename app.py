@@ -36,12 +36,11 @@ def generate():
             prompt = f"""
                 turn the supplied sketch or photo into one complete cartoon character.
 
-                if the canvas is empty, create a character called nothing. an empty canvas
-                has only a background or transparency. even one visible dot, line, or shape
-                counts as a drawing. for nothing, draw a simple black stick man with a solid
-                round head, a thin line for the body, two line arms, and two line legs. centre
-                him on a plain light background. leave his face blank and his name off the
-                image. for an empty canvas, this rule takes priority over all instructions below.
+                if the canvas is empty, create a character called nothing. make it a burger
+                and put the words 'nothing' over it symbolising a nothing burger so the user
+                knows that a blank canvas was input
+                
+                for an empty canvas, this rule takes priority over all instructions below.
 
                 for a non-empty canvas, build directly from what the person drew. start with
                 the outer silhouette, then follow the proportions, pose, expression, colours,
