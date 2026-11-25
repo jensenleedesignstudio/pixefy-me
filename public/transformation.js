@@ -1,16 +1,17 @@
 const dialog = document.querySelector("#transformation");
 const open = document.querySelector("#open-replay");
-const screen = document.querySelector("#replay-screen");
-const ctx = screen.getContext("2d");
+const poster = document.querySelector("#replay-screen");
+const ctx = poster.getContext("2d");
 const slider = document.querySelector("#replay-time");
 const play = document.querySelector("#replay-play");
 const save = document.querySelector("#replay-save");
 const status = document.querySelector("#replay-status");
 const duration = Number(slider.max);
 const formats = ["video/mp4", "video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"];
-const format = window.MediaRecorder && screen.captureStream &&
+const format = window.MediaRecorder && poster.captureStream &&
   formats.find(type => MediaRecorder.isTypeSupported(type));
-let source, frames, loading, raf, recording;
+const canExport = Boolean(format || window.VideoEncoder);
+let source, replay, loading, raf, recording;
 
 function stop() {
   cancelAnimationFrame(raf);
@@ -19,30 +20,35 @@ function stop() {
 }
 function controls(ready) {
   slider.disabled = play.disabled = !ready;
-  save.disabled = !ready || !format;
-  save.hidden = !format;
+  save.disabled = !ready || !canExport;
+  save.hidden = !canExport;
 }
 function abandonRecording() {
   if (!recording) return;
   const old = recording;
   recording = null;
-  if (old.recorder.state !== "inactive") old.recorder.stop();
-  old.stream.getTracks().forEach(track => track.stop());
+  old.controller.abort();
+  if (old.recorder && old.recorder.state !== "inactive") old.recorder.stop();
+  old.stream?.getTracks().forEach(track => track.stop());
 }
 function cancel() {
   loading?.abort();
   stop();
   abandonRecording();
+  if (replay) {
+    replay.canvas.replaceWith(poster);
+    replay.dispose();
+  }
+  replay = null;
 }
 export function setReplaySource(next) {
   cancel();
   if (dialog.open) dialog.close();
-  frames = null;
   source = next;
   open.hidden = !source;
 }
 
-// Rasterize on an opaque square so fades also work for transparent sketches.
+// Keep the source bounds so letterboxing does not count as part of the silhouette.
 async function fitImage(blob, size) {
   const image = new Image();
   const url = URL.createObjectURL(blob);
@@ -57,34 +63,15 @@ async function fitImage(blob, size) {
     const scale = size / Math.max(image.naturalWidth, image.naturalHeight);
     const w = image.naturalWidth * scale, h = image.naturalHeight * scale;
     paint.drawImage(image, (size - w) / 2, (size - h) / 2, w, h);
-    return frame;
+    return { canvas: frame, bounds: [(size-w)/(2*size), (size-h)/(2*size), w/size, h/size] };
   } finally { URL.revokeObjectURL(url); }
 }
 
-function ease(t, start, end) {
-  const x = Math.max(0, Math.min(1, (t - start) / (end - start)));
-  return x * x * (3 - 2 * x);
-}
-function mix(a, b, weight) {
-  ctx.drawImage(a, 0, 0);
-  ctx.globalAlpha = weight;
-  ctx.drawImage(b, 0, 0);
-  ctx.globalAlpha = 1;
-}
-function sequence(images, progress) {
-  const index = progress * (images.length - 1);
-  mix(images[Math.floor(index)], images[Math.ceil(index)], index % 1);
-}
 function draw(ms) {
   const t = ms / duration;
-  const { sketch, art, particles, turn } = frames;
-  if (t < .40) mix(sketch, art, ease(t, .13, .33));
-  else if (t < .52) mix(art, particles[0], ease(t, .40, .52));
-  else if (t < .78) sequence(particles, ease(t, .52, .78));
-  else if (t < .85) mix(particles.at(-1), turn[0], ease(t, .78, .85));
-  else sequence(turn, ease(t, .85, .98));
+  replay.draw(t);
   slider.value = ms;
-  const stage = t < .23 ? "sketch" : t < .48 ? "artwork" : t < .82 ? "particles" : "3d model";
+  const stage = t < .24 ? "sketch" : t < .60 ? "artwork" : t < .83 ? "particles" : "3d model";
   slider.setAttribute("aria-valuetext", stage + ", " + (ms / 1000).toFixed(1) + " seconds");
   if (!recording && status.textContent !== stage) status.textContent = stage;
 }
@@ -110,19 +97,22 @@ open.addEventListener("click", async () => {
   const job = new AbortController();
   loading = job;
   try {
-    if (!frames) {
+    if (!replay) {
       status.textContent = "preparing transformation…";
       const size = matchMedia("(max-width: 640px), (pointer: coarse)").matches ? 360 : 512;
-      screen.width = screen.height = size;
+      poster.width = poster.height = size;
       const { sketch, art, model } = source;
       const [first, second] = await Promise.all([fitImage(sketch, size), fitImage(art, size)]);
       job.signal.throwIfAborted();
-      ctx.drawImage(first, 0, 0);
-      const { buildReplayFrames } = await import("./inline-dust.js");
+      ctx.drawImage(first.canvas, 0, 0);
+      const { buildReplay } = await import("./inline-dust.js");
       job.signal.throwIfAborted();
-      const baked = await buildReplayFrames(model, size, job.signal);
-      job.signal.throwIfAborted();
-      frames = { sketch: first, art: second, ...baked };
+      const prepared = await buildReplay(first, second, model, size, job.signal);
+      if (job.signal.aborted) { prepared.dispose(); return; }
+      replay = prepared;
+      replay.canvas.id = poster.id;
+      replay.canvas.setAttribute("aria-label", poster.getAttribute("aria-label"));
+      poster.replaceWith(replay.canvas);
     }
     draw(0);
     controls(true);
@@ -141,47 +131,66 @@ play.addEventListener("click", () => {
 });
 slider.addEventListener("input", () => { stop(); draw(Number(slider.value)); });
 
-save.addEventListener("click", () => {
-  if (!frames || !format || recording) return;
-  stop();
-  let stream;
-  try {
-    draw(0);
-    stream = screen.captureStream(30);
-    const recorder = new MediaRecorder(stream, { mimeType: format });
-    const job = { recorder, stream };
-    recording = job;
-    controls(false);
-    status.textContent = "saving six-second video…";
+function downloadVideo(blob) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "pixefy-transformation." + (blob.type.includes("mp4") ? "mp4" : "webm");
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+// Older browsers can still record the visible canvas in real time.
+function recordLive(job) {
+  draw(0);
+  job.stream = replay.canvas.captureStream(60);
+  const recorder = new MediaRecorder(job.stream, { mimeType: format, videoBitsPerSecond: 5_000_000 });
+  job.recorder = recorder;
+  return new Promise((resolve, reject) => {
     const chunks = [];
-    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+    recorder.onerror = event => reject(event.error);
     recorder.onstop = () => {
-      stream.getTracks().forEach(track => track.stop());
-      if (recording !== job) return;
-      recording = null;
-      controls(true);
-      if (!chunks.length) { status.textContent = "video export failed. try again."; return; }
-      const blob = new Blob(chunks, { type: recorder.mimeType });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "pixefy-transformation." + (blob.type.includes("mp4") ? "mp4" : "webm");
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
-      status.textContent = "video ready";
-    };
-    recorder.onerror = () => {
-      if (recording !== job) return;
-      stop(); abandonRecording(); controls(true);
-      status.textContent = "video export failed. try again.";
+      if (chunks.length) resolve(new Blob(chunks, { type: recorder.mimeType }));
+      else reject(new Error("Empty recording"));
     };
     recorder.start();
     animate(0, () => recorder.stop());
+  });
+}
+
+save.addEventListener("click", async () => {
+  if (!replay || !canExport || recording) return;
+  stop();
+  const job = { controller: new AbortController() };
+  recording = job;
+  controls(false);
+  status.textContent = "saving video…";
+  try {
+    let blob;
+    if (window.VideoEncoder) {
+      try {
+        const { encodeReplay } = await import("./replay-export.js");
+        job.controller.signal.throwIfAborted();
+        blob = await encodeReplay(replay.canvas, duration, draw, job.controller.signal);
+      } catch (error) {
+        if (job.controller.signal.aborted || !format) throw error;
+      }
+    }
+    job.controller.signal.throwIfAborted();
+    if (!blob && format) blob = await recordLive(job);
+    job.controller.signal.throwIfAborted();
+    if (!blob) throw new Error("No compatible video encoder");
+    downloadVideo(blob);
+    status.textContent = "video ready";
   } catch {
-    stream?.getTracks().forEach(track => track.stop());
-    abandonRecording();
-    controls(true);
-    status.textContent = "video export is unavailable in this browser.";
+    if (recording === job) status.textContent = "video export failed. try again.";
+  } finally {
+    if (recording === job) {
+      stop();
+      abandonRecording();
+      controls(true);
+    }
   }
 });
 document.addEventListener("visibilitychange", () => {

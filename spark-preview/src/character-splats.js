@@ -4,19 +4,21 @@ import { MeshSurfaceSampler } from "three/addons/math/MeshSurfaceSampler.js";
 import { SplatMesh } from "@sparkjsdev/spark";
 
 // Optional adapter for Pixefy's static, textured Stable Fast 3D meshes.
-export async function sampleCharacter(source, count, signal, onMeshReady) {
+export async function sampleCharacter(source, count, signal) {
   signal?.throwIfAborted();
   const loader = new GLTFLoader();
-  const { scene } = source instanceof Blob
-    ? await loader.parseAsync(await source.arrayBuffer(), "")
-    : await loader.loadAsync(source);
+  let scene = source;
+  if (!source.isObject3D) {
+    const gltf = source instanceof Blob
+      ? await loader.parseAsync(await source.arrayBuffer(), "")
+      : await loader.loadAsync(source);
+    scene = gltf.scene;
+  }
   scene.updateMatrixWorld(true);
   const parts = [];
-  const textures = new Set();
   let result;
   try {
     signal?.throwIfAborted();
-    onMeshReady?.(scene);
     scene.traverseVisible(part => {
       if (!part.isMesh || part.isSkinnedMesh || Array.isArray(part.material)) return;
       const geometry = part.geometry.clone().applyMatrix4(part.matrixWorld);
@@ -84,14 +86,19 @@ export async function sampleCharacter(source, count, signal, onMeshReady) {
     throw error;
   } finally {
     for (const { geometry } of parts) geometry.dispose();
-    scene.traverse(part => {
-      if (!part.isMesh) return;
-      part.geometry.dispose();
-      for (const material of [].concat(part.material)) {
-        for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
-        material.dispose();
-      }
-    });
-    for (const texture of textures) { texture.dispose(); texture.image?.close?.(); }
+    if (!source.isObject3D) disposeCharacter(scene);
   }
+}
+
+export function disposeCharacter(scene) {
+  const textures = new Set();
+  scene.traverse(part => {
+    if (!part.isMesh) return;
+    part.geometry.dispose();
+    for (const material of [].concat(part.material)) {
+      for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
+      material.dispose();
+    }
+  });
+  for (const texture of textures) { texture.dispose(); texture.image?.close?.(); }
 }

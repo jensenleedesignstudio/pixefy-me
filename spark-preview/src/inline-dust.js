@@ -98,4 +98,4 @@ export async function playDust(layer, viewer, model, signal) {
   }
 }
 
-export { buildReplayFrames } from "./replay-frames.js";
+export { buildReplay } from "./replay-frames.js";

@@ -243,6 +243,8 @@ h1 {
 
 .canvas-layout > .canvas-surface {
     grid-area: canvas;
+    box-sizing: border-box;
+    width: min(100%, calc(var(--drawing-height-limit, 72dvh) * var(--drawing-ratio, 1.7142857) + 12px));
     align-self: start;
     min-width: 0;
     padding: 6px;
@@ -364,6 +366,14 @@ label[for="art-instructions"] {
 .drawing-panel:not(.is-active) .canvas-layout {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "canvas";
+}
+
+.drawing-panel:not(.is-active) {
+    --drawing-height-limit: 160px;
+}
+
+.drawing-panel:fullscreen {
+    --drawing-height-limit: calc(100dvh - 100px);
 }
 
 .drawing-panel:not(.is-active) #drawing {

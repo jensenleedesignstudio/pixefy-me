@@ -3,12 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build:viewer && npm run build:inline",
+    "build": "npm run build:viewer && npm run build:inline && npm run build:export",
     "build:viewer": "esbuild src/viewer.js --bundle --minify --splitting --format=esm --outdir=../public/spark-build --entry-names=viewer --chunk-names=chunks/[name]-[hash] --legal-comments=eof",
-    "build:inline": "esbuild src/inline-dust.js --bundle --minify --format=esm --legal-comments=eof --outfile=../public/inline-dust.js"
+    "build:inline": "esbuild src/inline-dust.js --bundle --minify --format=esm --legal-comments=eof --outfile=../public/inline-dust.js",
+    "build:export": "esbuild src/replay-export.js --bundle --minify --format=esm --legal-comments=eof --outfile=../public/replay-export.js"
   },
   "dependencies": {
     "@sparkjsdev/spark": "2.4.0",
+    "mediabunny": "1.66.4",
     "three": "0.180.0"
   },
   "devDependencies": {

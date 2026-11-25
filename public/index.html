@@ -541,16 +541,38 @@
                 redoButton.disabled = redoHistory.length === 0;
             }
 
+            function resizeDrawing(width, height) {
+                drawing = false;
+                if (canvas.width !== width) canvas.width = width;
+                if (canvas.height !== height) canvas.height = height;
+                canvas.parentElement.style.setProperty("--drawing-ratio", width / height);
+            }
+
+            function rememberCurrentImage(history) {
+                history.push(snapshot());
+                // Full-resolution photo snapshots can be much larger than a blank sketch.
+                let bytes = 0;
+                for (let i = history.length - 1; i >= 0; i--) {
+                    bytes += history[i].data.byteLength;
+                    if (bytes > 96 * 1024 * 1024 && i < history.length - 1) {
+                        history.splice(0, i + 1);
+                        break;
+                    }
+                }
+            }
+
             function recordEdit() {
-                undoHistory.push(snapshot());
+                rememberCurrentImage(undoHistory);
                 redoHistory.length = 0;
                 updateHistoryButtons();
             }
 
             function restoreEdit(from, to) {
                 if (!from.length) return;
-                to.push(snapshot());
-                ctx.putImageData(from.pop(), 0, 0);
+                rememberCurrentImage(to);
+                const previous = from.pop();
+                resizeDrawing(previous.width, previous.height);
+                ctx.putImageData(previous, 0, 0);
                 updateHistoryButtons();
             }
 
@@ -677,39 +699,28 @@
                     });
             });
 
-                    uploadButton.addEventListener("click", function () {
-                photoUpload.click();
-            });
+            uploadButton.addEventListener("click", () => photoUpload.click());
 
-            photoUpload.addEventListener("change", async function () {
+            let uploadVersion = 0;
+            photoUpload.addEventListener("change", async () => {
                 const file = photoUpload.files[0];
                 if (!file) return;
-
+                photoUpload.value = "";
+                const version = ++uploadVersion;
+                let photo;
                 try {
-                    const photo = await createImageBitmap(file);
-
+                    photo = await createImageBitmap(file);
+                    if (version !== uploadVersion) return;
                     recordEdit();
-
-                    const scale = Math.min(
-                        canvas.width / photo.width,
-                        canvas.height / photo.height
-                    );
-
-                    const width = photo.width * scale;
-                    const height = photo.height * scale;
-                    const x = (canvas.width - width) / 2;
-                    const y = (canvas.height - height) / 2;
-
+                    resizeDrawing(photo.width, photo.height);
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.globalCompositeOperation = "source-over";
-                    ctx.drawImage(photo, x, y, width, height);
-
-                    photo.close();
-                } catch (error) {
-                    alert("Could not open this image. Try a PNG or JPEG.");
+                    ctx.drawImage(photo, 0, 0);
+                } catch {
+                    if (version === uploadVersion) alert("Could not open this image. Try a PNG or JPEG.");
+                } finally {
+                    photo?.close();
                 }
-
-                photoUpload.value = "";
             });
 
             document.addEventListener("click", function (event) {
