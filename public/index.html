@@ -179,6 +179,7 @@
 
         <div class = "panel-header">
             <h2>3d preview</h2>
+            <button type="button" id="open-replay" hidden>view transformation</button>
 
             <button 
                 type = "button" 
@@ -210,11 +211,25 @@
         </section>
         </main>
 
+        <dialog id="transformation" aria-labelledby="replay-heading">
+            <header><h2 id="replay-heading">transformation</h2><form method="dialog"><button aria-label="Close transformation">close</button></form></header>
+            <canvas id="replay-screen" aria-label="Transformation from original sketch through artwork to the finished model"></canvas>
+            <p id="replay-status" role="status"></p>
+            <div class="replay-controls">
+                <button type="button" id="replay-play">play</button>
+                <input id="replay-time" type="range" min="0" max="6000" step="10" value="0" aria-label="Transformation timeline">
+                <button type="button" id="replay-save">save video</button>
+            </div>
+        </dialog>
+
         <script type="module">
             import { beginGenerationEffect } from "./generation-effects.js";
             import { beginModelRequest, cancelModelReveal } from "./model-reveal.js";
 
+            import { setReplaySource } from "./transformation.js";
+
             let generatedImage = null;
+            let generatedSketch = null;
 
             const panels = document.querySelectorAll(".workspace > section");
             const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -584,7 +599,9 @@
                             return response.blob();
                         })
                         .then(image => {
+                            generatedSketch = sketch;
                             generatedImage = image;
+                            setReplaySource(null);
                             generate3dButton.disabled = modelRequestPending;
                             const preview = document.getElementById("preview");
                             preview.src = URL.createObjectURL(image);
@@ -615,6 +632,8 @@
                 if (!generatedImage || modelRequestPending) return;
                 modelRequestPending = true;
                 setActivePanel("model");
+                const art = generatedImage;
+                const sketch = generatedSketch;
                 const reveal = beginModelRequest(document.getElementById("preview").src);
                 const finishEffect = beginGenerationEffect("model");
 
@@ -637,7 +656,12 @@
                         return response.blob();
                     })
                     .then(model => {
+                        if (generatedImage !== art) {
+                            reveal.fail();
+                            return;
+                        }
                         reveal.show(model);
+                        setReplaySource({ sketch, art, model });
                         finishEffect(true);
                     })
                     .catch(error => {

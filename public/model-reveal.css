@@ -26,3 +26,47 @@
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
+
+#model-panel:not(.is-active) #open-replay,
+#open-replay[hidden] { display: none; }
+
+#open-replay { margin-inline-start: auto; }
+#transformation {
+  width: min(32rem, 88vw);
+  max-height: 90dvh;
+  box-sizing: border-box;
+  padding: 1rem;
+  border: 1px solid var(--button-edge);
+  border-radius: 1rem;
+  color: var(--button-ink);
+  background: var(--button-cream);
+}
+#transformation::backdrop { background: rgb(43 36 27 / 50%); }
+#transformation header, .replay-controls {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+#transformation header { justify-content: space-between; }
+#transformation h2 { margin: 0; font-size: 1.05rem; }
+#transformation button, #open-replay {
+  color: var(--button-ink);
+  font: inherit;
+  border: 0;
+  border-radius: 2rem;
+  padding: .45rem .7rem;
+  background: var(--button-paper);
+  cursor: pointer;
+}
+#transformation button:disabled { opacity: .5; cursor: default; }
+#replay-screen {
+  display: block;
+  width: min(100%, 58dvh);
+  height: auto;
+  aspect-ratio: 1;
+  margin: .75rem auto;
+  border-radius: .65rem;
+  background: var(--surface-warm);
+}
+#replay-time { flex: 1; min-width: 0; accent-color: var(--button-walnut); }
+#replay-status { font-size: .85rem; margin: .5rem 0; }

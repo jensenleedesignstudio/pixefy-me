@@ -97,3 +97,5 @@ export async function playDust(layer, viewer, model, signal) {
     dispose();
   }
 }
+
+export { buildReplayFrames } from "./replay-frames.js";
