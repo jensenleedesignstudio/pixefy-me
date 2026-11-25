@@ -545,7 +545,7 @@
                 drawing = false;
                 if (canvas.width !== width) canvas.width = width;
                 if (canvas.height !== height) canvas.height = height;
-                canvas.parentElement.style.setProperty("--drawing-ratio", width / height);
+                canvas.closest(".canvas-layout").style.setProperty("--drawing-ratio", width / height);
             }
 
             function rememberCurrentImage(history) {

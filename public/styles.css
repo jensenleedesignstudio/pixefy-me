@@ -234,7 +234,11 @@ h1 {
 /* Keep the editor inside the card that FLIP and fullscreen move. */
 .canvas-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 220px;
+    --canvas-inset: 6px;
+    --toolbar-min: calc(2 * var(--tool-size) + 16px);
+    --frame-width: calc(var(--drawing-height-limit, 72dvh) * var(--drawing-ratio, 1.7142857) + 2 * var(--canvas-inset));
+    grid-template-columns: minmax(0, var(--frame-width)) 220px;
+    justify-content: end;
     grid-template-areas:
         "toolbar instructions"
         "canvas instructions";
@@ -244,10 +248,10 @@ h1 {
 .canvas-layout > .canvas-surface {
     grid-area: canvas;
     box-sizing: border-box;
-    width: min(100%, calc(var(--drawing-height-limit, 72dvh) * var(--drawing-ratio, 1.7142857) + 12px));
+    width: min(100%, var(--frame-width));
     align-self: start;
     min-width: 0;
-    padding: 6px;
+    padding: var(--canvas-inset);
 }
 
 .canvas-layout > .drawing-toolbar {
@@ -526,11 +530,11 @@ label[for="art-instructions"] {
     --lg-radius: 999px;
     flex-wrap: nowrap;
     gap: 4px;
-    min-width: 0;
-    width: 100%;
+    width: calc(min(100%, var(--frame-width)) - 2 * var(--canvas-inset));
+    min-width: var(--toolbar-min);
     box-sizing: border-box;
     padding: 4px;
-    margin: 0 0 10px;
+    margin: 0 0 10px var(--canvas-inset);
     align-self: start;
     justify-self: start;
     border: none;
@@ -538,7 +542,15 @@ label[for="art-instructions"] {
     transition: width 280ms ease;
 }
 
+/* Keep the scrollable tools clear of the instructions even for a very narrow image. */
+@container drawing-panel (min-width: 701px) {
+    .drawing-toolbar:not(.is-collapsed) {
+        margin-inline-start: min(var(--canvas-inset), calc(var(--frame-width) - var(--canvas-inset) - var(--toolbar-min)));
+    }
+}
+
 .canvas-layout > .drawing-toolbar.is-collapsed {
+    min-width: 0;
     width: calc(var(--tool-size) + 12px);
 }
 
