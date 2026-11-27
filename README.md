@@ -50,6 +50,10 @@ OPENAI_API_KEY=your_openai_api_key
 HF_TOKEN=your_hugging_face_token
 ```
 
+```bash 
+cp .env.example .env
+```
+
 pixefy uses `OPENAI_API_KEY` to generate character artwork and `HF_TOKEN` to turn that artwork into a 3D model. keep your `.env` file private.
 
 ### 4. start the studio
