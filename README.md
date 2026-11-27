@@ -5,8 +5,6 @@
 https://github.com/user-attachments/assets/d2552907-fe48-4443-ac41-b0ff62318587
 
 ---
-draw a character or upload an image, add instructions and generate character artwork. once you like your results, turn the artwork into a viewable 3d model
---- 
 
 ## ✨ features
 
