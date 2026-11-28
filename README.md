@@ -50,18 +50,20 @@ python -m pip install -r requirements.txt
 
 ### 3. configure your API keys
 
-create a file named `.env` in the same folder as `app.py`. add these two lines and replace the placeholders with your own credentials:
+on a fresh clone, copy the template to create your local `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+open `.env` in your editor and fill in the two values:
 
 ```dotenv
 OPENAI_API_KEY=your_openai_api_key
 HF_TOKEN=your_hugging_face_token
 ```
 
-```bash 
-cp .env.example .env
-```
-
-pixefy uses `OPENAI_API_KEY` to generate character artwork and `HF_TOKEN` to turn that artwork into a 3D model. keep your `.env` file private.
+Pixefy uses the OpenAI key to generate artwork and the Hugging Face token to generate 3D models. Keep `.env` private.
 
 ### 4. start the studio
 
