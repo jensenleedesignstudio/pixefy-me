@@ -1,5 +1,7 @@
 # pixefy me 🎨
 
+[![frontend test](https://github.com/jensenleedesignstudio/pixefy-me/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/jensenleedesignstudio/pixefy-me/actions/workflows/test.yml)
+
 > turn your sketches into 3D character artwork 
 
 https://github.com/user-attachments/assets/d2552907-fe48-4443-ac41-b0ff62318587
