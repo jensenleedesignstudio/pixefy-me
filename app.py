@@ -6,12 +6,19 @@ from base64 import b64decode
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from gradio_client import Client, handle_file
+from upstash_redis import Redis
 import os
 
 app = Flask(__name__, static_folder = "public", static_url_path = "/static")
 
 load_dotenv()
 client = OpenAI()
+
+def get_quota_db(): 
+    return Redis(
+        url = os.environ["KV_REST_API_URL"],
+        token = os.environ["KV_REST_API_TOKEN"],
+    )
 
 @app.route("/")
 def home ():
