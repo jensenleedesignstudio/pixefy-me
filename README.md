@@ -17,6 +17,8 @@ https://github.com/user-attachments/assets/d2552907-fe48-4443-ac41-b0ff62318587
 | 🧊 3d preview | turn the generated artwork into a 3D model |
 | 🎞️ transformation replay | scrub from the original sketch to the finished model |
 
+each browser allows two generation attempts per day. creating artwork uses one attempt, and turning it into a 3d model uses the other. limit resets at midnight in Toronto. 
+
 ## how it works
 
 1. **sketch → artwork** - browser sens a PNG of the canvas and artist's instructions to a Flask backend. Flask calls OpenAI’s image editing API and returns the character artwork.
@@ -58,11 +60,14 @@ on a fresh clone, copy the template to create your local `.env` file:
 cp .env.example .env
 ```
 
-open `.env` in your editor and fill in the two values:
+open `.env` in your editor and fill in the five values:
 
 ```dotenv
 OPENAI_API_KEY=your_openai_api_key
 HF_TOKEN=your_hugging_face_token
+KV_REST_API_URL=your_upstash_redis_rest_url
+KV_REST_API_TOKEN=your_upstash_redis_read_write_token
+FLASK_SECRET_KEY=your_random_secret_key
 ```
 
 Pixefy uses the OpenAI key to generate artwork and the Hugging Face token to generate 3D models. Keep `.env` private.
