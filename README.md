@@ -1,12 +1,12 @@
 # pixefy me 🎨
 
-[![frontend test](https://github.com/jensenleedesignstudio/pixefy-me/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/jensenleedesignstudio/pixefy-me/actions/workflows/test.yml)
-
 > turn your sketches into 3D character artwork 
 
-[try pixefy me live →](https://pixefy-me.vercel.app/)
-
 https://github.com/user-attachments/assets/d2552907-fe48-4443-ac41-b0ff62318587
+
+[![frontend test](https://github.com/jensenleedesignstudio/pixefy-me/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/jensenleedesignstudio/pixefy-me/actions/workflows/test.yml)
+
+[try pixefy me live →](https://pixefy-me.vercel.app/)
 
 ---
 
