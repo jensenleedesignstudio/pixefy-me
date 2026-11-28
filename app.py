@@ -8,6 +8,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from gradio_client import Client, handle_file
 from upstash_redis import Redis
+from generation_limits import reserve_generation
 import os
 
 app = Flask(__name__, static_folder = "public", static_url_path = "/static")
@@ -23,6 +24,22 @@ def get_quota_db():
         url = os.environ["KV_REST_API_URL"],
         token = os.environ["KV_REST_API_TOKEN"],
     )
+
+def check_generation_quota():
+    browser_id = session.get("browser_id")
+    if not browser_id:
+        return "Refresh the page to start your browser session.", 409
+
+    try:
+        allowed = reserve_generation(get_quota_db(), browser_id)
+    except Exception:
+        app.logger.error("Could not check the generation quota.")
+        return "Could not check your daily limit. Try again shortly.", 503
+
+    if not allowed:
+        return "You've used both generations for today. Try again tomorrow.", 429
+
+    return None
 
 @app.route("/browser-session", methods=["POST"])
 def start_browser_session():
@@ -45,6 +62,10 @@ def generate():
 
     if sketch is None: 
         return "no sketch received", 400
+
+    quota_error = check_generation_quota()
+    if quota_error is not None:
+        return quota_error
 
     try: 
         result = client.images.edit(
@@ -121,6 +142,10 @@ def generate_3d():
 
     if image is None:
         return "No image received.", 400
+
+    quota_error = check_generation_quota()
+    if quota_error is not None:
+        return quota_error
 
     with TemporaryDirectory() as folder:
         image_path = Path(folder) / "pixel-art.png"
