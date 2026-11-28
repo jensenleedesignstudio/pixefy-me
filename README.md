@@ -4,6 +4,8 @@
 
 > turn your sketches into 3D character artwork 
 
+[try pixefy me live →](https://pixefy-me.vercel.app/)
+
 https://github.com/user-attachments/assets/d2552907-fe48-4443-ac41-b0ff62318587
 
 ---
