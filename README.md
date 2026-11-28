@@ -1,6 +1,6 @@
 # pixefy me 🎨
 
-> turn your sketches into 3d character artwork 
+> turn your sketches into 3D character artwork 
 
 https://github.com/user-attachments/assets/d2552907-fe48-4443-ac41-b0ff62318587
 
@@ -15,14 +15,21 @@ https://github.com/user-attachments/assets/d2552907-fe48-4443-ac41-b0ff62318587
 | 🧊 3d preview | turn the generated artwork into a 3D model |
 | 🎞️ transformation replay | scrub from the original sketch to the finished model |
 
+## how it works
+
+1. **sketch → artwork** - browser sens a PNG of the canvas and artist's instructions to a Flask backend. Flask calls OpenAI’s image editing API and returns the character artwork.
+2. **artwork → 3D model** — when the artist clicks **generate 3d**, Flask sends the artwork to Stable Fast 3D on Hugging Face. The browser receives a GLB file and displays the model so the artist can rotate it.
+3. **sketch → replay** — the browser uses the saved sketch, artwork, and model to render a transformation the artist can scrub through or export as a video.
+
+
 ## 🚀 local setup
 
 ### prerequisites
 
-- git to clone the repository
-- python 3 (tested with Python 3.14.6)
+- Git to clone the repository
+- Python 3 (tested with Python 3.14.6)
 - an OpenAI API key for generating character artwork
-- a hugging face access token for generating 3D models
+- a Hugging Face access token for generating 3D models
 
 ### 1. clone the repository
 
