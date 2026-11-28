@@ -225,8 +225,21 @@
         <script type="module">
             import { beginGenerationEffect } from "./generation-effects.js";
             import { beginModelRequest, cancelModelReveal } from "./model-reveal.js";
-
             import { setReplaySource } from "./transformation.js";
+
+            const browserSessionReady = fetch("/browser-session", { method: "POST" })
+                .then(response => response.ok)
+                .catch(() => false);
+
+            async function sendGeneration(path, form) {
+                const ready = await browserSessionReady;
+
+                if (!ready) {
+                    throw new Error("Could not start your session. Refresh the page and try again.");
+                }
+
+                return fetch(path, { method: "POST", body: form });
+            }
 
             let generatedImage = null;
             let generatedSketch = null;
@@ -611,7 +624,7 @@
                     const instructions = document.getElementById("art-instructions").value;
                     form.append("instructions", instructions);
 
-                    fetch("/generate", { method: "POST", body: form })
+                    sendGeneration("/generate", form)
                         .then(async response => {
                             if (!response.ok) {
                                 const message = await response.text();
@@ -666,10 +679,7 @@
                 const form = new FormData();
                 form.append("image", generatedImage, "pixel-art.png");
 
-                fetch("/generate-3d", {
-                    method: "POST",
-                    body: form
-                })
+                sendGeneration("/generate-3d", form)
                     .then(async response => {
                         if (!response.ok) {
                             throw new Error(await response.text());
