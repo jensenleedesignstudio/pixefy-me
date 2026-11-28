@@ -1,4 +1,5 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, session
+from uuid import uuid4
 from io import BytesIO
 from dotenv import load_dotenv
 from openai import OpenAI, RateLimitError, BadRequestError
@@ -12,6 +13,9 @@ import os
 app = Flask(__name__, static_folder = "public", static_url_path = "/static")
 
 load_dotenv()
+
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+
 client = OpenAI()
 
 def get_quota_db(): 
@@ -19,6 +23,14 @@ def get_quota_db():
         url = os.environ["KV_REST_API_URL"],
         token = os.environ["KV_REST_API_TOKEN"],
     )
+
+@app.route("/browser-session", methods=["POST"])
+def start_browser_session():
+    if "browser_id" not in session:
+        session["browser_id"] = uuid4().hex
+        session.permanent = True
+
+    return "", 204
 
 @app.route("/")
 def home ():
