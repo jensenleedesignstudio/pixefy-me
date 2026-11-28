@@ -76,3 +76,13 @@ python -m flask --app app run --port 5001
 open [pixefy in your browser](http://127.0.0.1:5001/static/index.html). draw a stroke and click **undo** to check that the canvas works.
 
 press `Ctrl+C` in the terminal to stop the server.
+
+## 🧪 testing
+
+from the project root, run the frontend effects test with Node.js and npm:
+
+```bash
+npm --prefix effects test
+```
+
+this checks how the generation background responds when a request finishes, fails, or overlaps with another request. it also checks reduced-motion behaviour. no API keys are needed for this test.
